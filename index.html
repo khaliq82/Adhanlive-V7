@@ -3328,6 +3328,24 @@ async function main(){
   setTimeout(()=>{precalcPrayerTimes();setInterval(precalcPrayerTimes,86400000);},msToMidnight);
 }
 
+// Merge mobile chunks into MOSQUES_OSM
+const MOSQUES_OSM = [].concat(
+  typeof MOSQUES_MOBILE_1!=='undefined'?MOSQUES_MOBILE_1:[],
+  typeof MOSQUES_MOBILE_2!=='undefined'?MOSQUES_MOBILE_2:[],
+  typeof MOSQUES_MOBILE_3!=='undefined'?MOSQUES_MOBILE_3:[],
+  typeof MOSQUES_MOBILE_4!=='undefined'?MOSQUES_MOBILE_4:[],
+  typeof MOSQUES_MOBILE_5!=='undefined'?MOSQUES_MOBILE_5:[],
+  typeof MOSQUES_MOBILE_6!=='undefined'?MOSQUES_MOBILE_6:[],
+  typeof MOSQUES_MOBILE_7!=='undefined'?MOSQUES_MOBILE_7:[],
+  typeof MOSQUES_MOBILE_8!=='undefined'?MOSQUES_MOBILE_8:[],
+  typeof MOSQUES_MOBILE_9!=='undefined'?MOSQUES_MOBILE_9:[],
+  typeof MOSQUES_MOBILE_10!=='undefined'?MOSQUES_MOBILE_10:[],
+  typeof MOSQUES_MOBILE_11!=='undefined'?MOSQUES_MOBILE_11:[],
+  typeof MOSQUES_MOBILE_12!=='undefined'?MOSQUES_MOBILE_12:[],
+  typeof MOSQUES_MOBILE_13!=='undefined'?MOSQUES_MOBILE_13:[],
+  typeof MOSQUES_MOBILE_14!=='undefined'?MOSQUES_MOBILE_14:[],
+  typeof MOSQUES_MOBILE_15!=='undefined'?MOSQUES_MOBILE_15:[]
+);
 main();
 
 // Pre-init mobile globe immediately so it's ready when user taps Enter
