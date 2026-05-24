@@ -1393,7 +1393,6 @@ const MOSQUES_MOBILE_3=[
 [33.896089,-5.50069,1.0,"Mosque Kitane","Algeria"],
 [33.536947,9.868355,1.0,"مسجد تامزرط","Algeria"],
 [34.689509,-0.720423,1.0,"Mosque","Algeria"],
-[24.101419,10.931214,1.0,"Mosque","Algeria"],
 [32.353641,-6.364257,1.0,"Masjid march 2","Algeria"],
 [35.586816,-0.811379,1.0,"Mosquée El Hidaya","Algeria"],
 [32.595833,5.846746,1.0,"Mosque","Algeria"],
