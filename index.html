@@ -1159,11 +1159,16 @@ footer{
     overflow:visible;
     padding-bottom:48px;
   }
-  /* Prevent content scrolling behind footer on mobile */
-  body.map-active{padding-bottom:40px;}
-  /* Prevent content scrolling behind nav on mobile — globe card handles top */
+  /* Mobile content wrapper - clips content away from nav and footer */
+  #mobile-content-wrapper{display:none;}
+  body.map-active #mobile-content-wrapper{
+    display:block;
+    padding-top:56px;
+    padding-bottom:40px;
+  }
+  /* Prevent content from going behind nav at top */
   body.map-active #mobile-globe-card{
-    margin-top:56px;
+    margin-top:0;
   }
   #mobile-globe-card{display:none;}
   /* Home overlay always on top on mobile */
@@ -1891,6 +1896,8 @@ footer{
 <div id="zoom-hint">Scroll to zoom · Drag to rotate · Click a dot for details</div>
 
 <!-- SCROLLABLE SECTIONS -->
+<!-- Mobile Content Wrapper - prevents nav/footer bleed on mobile -->
+<div id="mobile-content-wrapper">
 <!-- Mobile Globe Card -->
 <div id="mobile-globe-card">
   <canvas id="mobile-globe-canvas"></canvas>
@@ -2032,6 +2039,7 @@ footer{
   </div>
 
 </div>
+</div><!-- end mobile-content-wrapper -->
 
 
 
