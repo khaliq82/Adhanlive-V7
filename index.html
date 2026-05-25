@@ -567,7 +567,7 @@ body.map-active #map-footer{display:flex;}
 }
 
 #panel-right{
-  position:fixed;top:56px;right:0;bottom:0;width:300px;
+  position:fixed;top:56px;right:0;bottom:44px;width:300px;
   background:linear-gradient(180deg,rgba(0,0,0,0.97) 0%,rgba(0,0,0,0.95) 100%);
   border-left:1px solid var(--border);z-index:200;
   display:flex;flex-direction:column;overflow:hidden;
@@ -1256,7 +1256,7 @@ footer{
 
 /* View toggle buttons */
 #view-toggle{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  position:fixed;bottom:68px;left:50%;transform:translateX(-50%);
   z-index:100;display:flex;gap:6px;
   background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);
   border:1px solid rgba(255,255,255,0.12);border-radius:50px;
@@ -2815,6 +2815,17 @@ const COUNTRY_NAMES={
   'LR':'Liberia','SL':'Sierra Leone','MR':'Mauritania','KM':'Comoros',
   'DJ':'Djibouti','ER':'Eritrea','MG':'Madagascar','MW':'Malawi',
   'ZM':'Zambia','ZW':'Zimbabwe','ZA':'South Africa','CI':"Côte d'Ivoire",
+  'HK':'Hong Kong','NC':'New Caledonia','MN':'Mongolia','NP':'Nepal',
+  'KH':'Cambodia','VN':'Vietnam','ID':'Indonesia','LK':'Sri Lanka',
+  'TL':'Timor-Leste','MU':'Mauritius','RE':'Réunion','YT':'Mayotte',
+  'GP':'Guadeloupe','MQ':'Martinique','GF':'French Guiana','PF':'French Polynesia',
+  'IL':'Israel','CY':'Cyprus','GR':'Greece','BG':'Bulgaria','AL':'Albania',
+  'MK':'North Macedonia','BA':'Bosnia','XK':'Kosovo','RS':'Serbia',
+  'RO':'Romania','UA':'Ukraine','KG':'Kyrgyzstan','GE':'Georgia','AM':'Armenia',
+  'PG':'Papua New Guinea','FJ':'Fiji','WS':'Samoa','TO':'Tonga',
+  'PR':'Puerto Rico','ZA':'South Africa','MW':'Malawi','MX':'Mexico',
+  'BR':'Brazil','AR':'Argentina','CO':'Colombia','VE':'Venezuela',
+  'BO':'Bolivia','PE':'Peru','EC':'Ecuador','PY':'Paraguay',
 };
 
 function updateMobileStats(calling,pC,activeMosques){
@@ -3002,9 +3013,10 @@ function updateRightPanel(activeMosques){
   // Build rows
   const rows=sorted.map(([country,count],i)=>{
     const code=NAME_TO_CODE[country]||country.slice(0,2).toUpperCase();
+    const flag=code.length===2?String.fromCodePoint(...[...code.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65)):'';
     return `<div class="country-row">
       <div class="country-rank">${i+1}</div>
-      <div class="country-badge">${code}</div>
+      <div class="country-badge" style="font-size:14px;background:none;border:none">${flag||code}</div>
       <div class="country-name">${country}</div>
       <div class="country-count">${count.toLocaleString()}</div>
     </div>`;
