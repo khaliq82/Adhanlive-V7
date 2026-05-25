@@ -595,6 +595,10 @@ body.map-active #map-footer{display:flex;}
   #map-footer{padding:0 14px;height:40px;}
   .map-footer-tagline,.map-footer-center,.map-footer-share-label{display:none;}
   .map-footer-logo{font-size:12px;}
+  /* Solid bottom border on nav to hard-clip content */
+  body.map-active nav{border-bottom:2px solid #000;}
+  /* Solid top border on footer to hard-clip content */
+  body.map-active #map-footer{border-top:2px solid #000;}
 
   /* Mobile feature cards - premium vertical */
   .mobile-feature-pills{
@@ -1149,16 +1153,11 @@ footer{
   #scroll-sections{display:none;}
   body.map-active #scroll-sections{
     display:block;
-    position:fixed;
-    top:56px;
-    bottom:40px;
-    left:0;right:0;
+    position:relative;
     z-index:100;
     background:#000;
-    overflow-y:auto;
-    overflow-x:hidden;
-    -webkit-overflow-scrolling:touch;
-    padding-bottom:0;
+    overflow:visible;
+    padding-bottom:48px;
   }
   #mobile-globe-card{display:none;}
   /* Home overlay always on top on mobile */
