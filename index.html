@@ -1969,13 +1969,13 @@ function enterMap(){
   document.getElementById('home-overlay').classList.add('hidden');
 
   const canvas = document.getElementById('globe-canvas');
-  canvas.style.top='56px';
-  canvas.style.height='calc(100vh - 56px)';
+  canvas.style.top='0';
+  canvas.style.height='100vh';
   // Zoom out slightly so globe fits with margin
   if(typeof targetZ !== 'undefined') targetZ = isMob ? 4.4 : 4.6;
   setTimeout(function(){
     if(camera && renderer){
-      const W=window.innerWidth, H=window.innerHeight-56;
+      const W=window.innerWidth, H=window.innerHeight;
       camera.aspect=W/H;
       camera.updateProjectionMatrix();
       renderer.setSize(W,H);
@@ -2275,7 +2275,7 @@ function initGlobe(){
   const W=window.innerWidth, H=window.innerHeight;
   camera=new THREE.PerspectiveCamera(45,W/H,0.1,100);
   camera.position.z=isMob?3.8:4.2;
-  camera.position.y=isMob?0.8:0.3;
+  camera.position.y=isMob?0.8:0.15;
   camera.lookAt(0,isMob?0.3:0.1,0);
   const isMobileDevice=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   // Safari requires specific WebGL context attributes
@@ -2438,7 +2438,7 @@ function initGlobe(){
     }
   },{passive:true,capture:false});
   window.addEventListener('resize',()=>{
-    const W2=window.innerWidth,H2=mapMode?window.innerHeight-56:window.innerHeight;
+    const W2=window.innerWidth,H2=window.innerHeight;
     camera.aspect=W2/H2;
     camera.updateProjectionMatrix();
     renderer.setSize(W2,H2);
