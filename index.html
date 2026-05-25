@@ -1159,7 +1159,21 @@ footer{
     overflow:visible;
     padding-bottom:48px;
   }
-  /* Mobile content wrapper - clips content away from nav and footer */
+  /* Solid black masks to prevent content bleed under nav and footer */
+  #mobile-top-mask, #mobile-bottom-mask{display:none;}
+  body.map-active #mobile-top-mask{
+    display:block;
+    position:fixed;top:0;left:0;right:0;
+    height:56px;background:#000;
+    z-index:499;pointer-events:none;
+  }
+  body.map-active #mobile-bottom-mask{
+    display:block;
+    position:fixed;bottom:0;left:0;right:0;
+    height:40px;background:#000;
+    z-index:499;pointer-events:none;
+  }
+  /* Mobile content wrapper */
   #mobile-content-wrapper{display:none;}
   body.map-active #mobile-content-wrapper{
     display:block;
@@ -4197,5 +4211,7 @@ function initNavDots(){
 document.addEventListener('DOMContentLoaded', initNavDots);
 </script>
 
+<div id="mobile-top-mask"></div>
+<div id="mobile-bottom-mask"></div>
 </body>
 </html>
