@@ -599,9 +599,19 @@ body.map-active #map-footer{display:flex;}
     backdrop-filter:none;
     height:64px !important;
   }
-  /* Mobile top mask matches nav height */
+  /* Fade gradient below nav - content dissolves into nav */
   body.map-active #mobile-top-mask{
     height:64px;
+  }
+  #mobile-fade-top{display:none;}
+  body.map-active #mobile-fade-top{
+    display:block;
+    position:fixed;
+    top:64px;left:0;right:0;
+    height:48px;
+    background:linear-gradient(to bottom, #000 0%, transparent 100%);
+    z-index:499;
+    pointer-events:none;
   }
   /* Mobile content wrapper starts below taller nav */
   body.map-active #mobile-content-wrapper{
@@ -4264,6 +4274,7 @@ document.addEventListener('DOMContentLoaded', initNavDots);
 </script>
 
 <div id="mobile-top-mask"></div>
+<div id="mobile-fade-top"></div>
 <div id="mobile-bottom-mask"></div>
 </body>
 </html>
