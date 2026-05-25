@@ -1,4 +1,4 @@
-// AdhanLive mobile 1/15 - 18708 mosques - 2026-05-24
+// AdhanLive mobile 1/15 - 18716 mosques - 2026-05-24
 const MOSQUES_MOBILE_1=[
 [31.77617,35.22941,2.5,"Al-Yaqoubi Mosque","Israel"],
 [34.70795,32.57682,2,"Mosque","Cyprus"],
@@ -18707,5 +18707,13 @@ const MOSQUES_MOBILE_1=[
 [43.13429,20.50578,1.5,"Mosque","Serbia"],
 [44.75775,19.68036,1.5,"Џамија Медина","Serbia"],
 [43.12169,20.505,1.5,"Mosque","Serbia"],
-[43.11529,20.48984,1.5,"Mosque","Serbia"]
+[43.11529,20.48984,1.5,"Mosque","Serbia"],
+[13.205425,74.769535,5.5,"Minara Masjid","India"],
+[13.200985,74.752527,5.5,"Masjid Al-Ansar","India"],
+[13.023002,74.789854,5.5,"Jumma Masjid","India"],
+[12.868484,74.865298,5.5,"Taqwa Masjid","India"],
+[31.7761,35.2358,9.0,"Al-Aqsa Mosque","Palestine"],
+[31.7781,35.2354,9.0,"Dome of the Rock","Palestine"],
+[33.6086,-7.6326,9.0,"Hassan II Mosque","Morocco"],
+[24.4128,54.475,9.0,"Sheikh Zayed Grand Mosque","UAE"]
 ];
