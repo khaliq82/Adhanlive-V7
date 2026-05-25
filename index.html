@@ -149,16 +149,17 @@ nav.nav-hidden{
   text-transform:uppercase;position:relative;display:inline-block;
 }
 .nav-links{display:flex;gap:32px;align-items:center;}
-.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-links a:hover{color:#ffffff;}
 .nav-links a.active{color:var(--cyan);}
 
 /* Cyan dot badge on feature nav links */
 .nav-dot-badge{
-  position:absolute;top:-6px;right:-8px;
-  width:5px;height:5px;border-radius:50%;
+  position:absolute;top:-5px;right:-10px;
+  width:6px;height:6px;border-radius:50%;
   background:var(--cyan);
-  box-shadow:0 0 6px var(--cyan);
-  animation:pulse 2.4s ease-out infinite;
+  box-shadow:0 0 8px var(--cyan),0 0 4px var(--cyan);
+  display:inline-block;
+  z-index:10;
 }
 
 /* Hamburger pulsing ring */
