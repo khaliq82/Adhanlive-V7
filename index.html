@@ -1972,7 +1972,7 @@ function enterMap(){
   canvas.style.top='0';
   canvas.style.height='100vh';
   // Zoom out slightly so globe fits with margin
-  if(typeof targetZ !== 'undefined') targetZ = isMob ? 4.4 : 4.6;
+  if(typeof targetZ !== 'undefined') targetZ = isMob ? 4.4 : 5.0;
   setTimeout(function(){
     if(camera && renderer){
       const W=window.innerWidth, H=window.innerHeight;
@@ -2275,7 +2275,7 @@ function initGlobe(){
   const W=window.innerWidth, H=window.innerHeight;
   camera=new THREE.PerspectiveCamera(45,W/H,0.1,100);
   camera.position.z=isMob?3.8:4.2;
-  camera.position.y=isMob?0.8:0.15;
+  camera.position.y=isMob?0.8:0.0;
   camera.lookAt(0,isMob?0.3:0.1,0);
   const isMobileDevice=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   // Safari requires specific WebGL context attributes
