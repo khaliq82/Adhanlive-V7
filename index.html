@@ -592,20 +592,40 @@ body.map-active #map-footer{display:flex;}
   .map-footer-tagline,.map-footer-center,.map-footer-share-label{display:none;}
   .map-footer-logo{font-size:12px;}
 
-  /* Mobile feature pills */
+  /* Mobile feature cards - premium vertical */
   .mobile-feature-pills{
-    display:flex;gap:8px;padding:8px 16px 12px;
-    flex-wrap:nowrap;
+    display:flex;flex-direction:column;gap:10px;padding:8px 16px 12px;
   }
   .mfp-pill{
-    display:flex;align-items:center;gap:5px;
-    padding:8px 10px;border-radius:20px;
-    background:rgba(255,255,255,0.06);
-    border:1px solid rgba(255,255,255,0.12);
+    display:flex;align-items:center;gap:14px;
+    padding:14px 16px;border-radius:14px;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
     text-decoration:none;
-    font-size:10px;font-weight:600;letter-spacing:0.04em;
-    color:rgba(255,255,255,0.8);text-transform:uppercase;
-    flex:1;justify-content:center;white-space:nowrap;
+    position:relative;overflow:hidden;
+  }
+  .mfp-pill::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(135deg,rgba(0,212,255,0.05) 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .mfp-icon{
+    font-size:22px;flex-shrink:0;
+    width:40px;height:40px;border-radius:10px;
+    background:rgba(255,255,255,0.06);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mfp-text{flex:1;}
+  .mfp-name{
+    font-size:12px;font-weight:700;letter-spacing:0.08em;
+    color:#ffffff;text-transform:uppercase;margin-bottom:2px;
+  }
+  .mfp-desc{
+    font-size:10px;color:rgba(255,255,255,0.4);
+    letter-spacing:0.02em;line-height:1.4;
+  }
+  .mfp-arrow{
+    font-size:14px;color:rgba(0,212,255,0.6);flex-shrink:0;
   }
 
   /* Mobile copyright */
@@ -617,6 +637,12 @@ body.map-active #map-footer{display:flex;}
 
   /* Ensure scroll content has enough bottom padding for footer */
   #scroll-sections{padding-bottom:0;}
+  body.map-active #scroll-sections{
+    background:#000;
+  }
+  body.map-active #mobile-stats{
+    padding-top:0;
+  }
 }
 #panel-left.visible{transform:translateX(0);}
 
@@ -1952,11 +1978,32 @@ footer{
     <span style="color:var(--gold)">→</span>
   </a>
 
-  <!-- Mobile Feature Pills -->
+  <!-- Mobile Feature Cards -->
   <div class="mobile-feature-pills">
-    <a href="adhan-clock.html" class="mfp-pill">⏱ Adhan Clock</a>
-    <a href="prayer-arcs.html" class="mfp-pill">🌐 Arc Explorer</a>
-    <a href="ask-adhanlive.html" class="mfp-pill">✨ Ask AdhanLive</a>
+    <a href="adhan-clock.html" class="mfp-pill">
+      <div class="mfp-icon">⏱</div>
+      <div class="mfp-text">
+        <div class="mfp-name">Adhan Clock</div>
+        <div class="mfp-desc">Watch all 5 prayers on a 24-hour circular clock</div>
+      </div>
+      <div class="mfp-arrow">→</div>
+    </a>
+    <a href="prayer-arcs.html" class="mfp-pill">
+      <div class="mfp-icon">🌐</div>
+      <div class="mfp-text">
+        <div class="mfp-name">Arc Explorer</div>
+        <div class="mfp-desc">See prayer arcs sweep across the globe by day & season</div>
+      </div>
+      <div class="mfp-arrow">→</div>
+    </a>
+    <a href="ask-adhanlive.html" class="mfp-pill">
+      <div class="mfp-icon">✨</div>
+      <div class="mfp-text">
+        <div class="mfp-name">Ask AdhanLive</div>
+        <div class="mfp-desc">Your AI guide to the live visualization</div>
+      </div>
+      <div class="mfp-arrow">→</div>
+    </a>
   </div>
 
   <!-- Mobile Copyright -->
@@ -2892,10 +2939,14 @@ const COUNTRY_NAMES={
   'CD':'DR Congo','CF':'Central African Republic','SS':'South Sudan',
   'RW':'Rwanda','BI':'Burundi','MW':'Malawi',
   'JP':'Japan','KR':'South Korea','MD':'Moldova','HR':'Croatia',
-  'SK':'Slovakia','CZ':'Czechia','HU':'Hungary','PL':'Poland',
+  'SK':'Slovakia','CZ':'Czechia','CZ':'Czech Republic','HU':'Hungary','PL':'Poland',
   'LT':'Lithuania','LV':'Latvia','EE':'Estonia','FI':'Finland',
   'DK':'Denmark','IE':'Ireland','PT':'Portugal','LU':'Luxembourg',
   'SG':'Singapore','TW':'Taiwan','MO':'Macao',
+  'AO':'Angola','BY':'Belarus','CL':'Chile','CC':'Cocos Islands',
+  'FJ':'Fiji','MT':'Malta','ME':'Montenegro','NZ':'New Zealand',
+  'KP':'North Korea','SR':'Suriname','TT':'Trinidad and Tobago','VE':'Venezuela',
+  'GB':'United Kingdom',
 };
 
 function updateMobileStats(calling,pC,activeMosques){
