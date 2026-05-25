@@ -640,7 +640,7 @@ body.map-active #map-footer{display:flex;}
   .mobile-copyright{
     font-size:9px;color:rgba(255,255,255,0.2);
     letter-spacing:0.05em;text-align:center;
-    padding:6px 16px 56px;
+    padding:6px 16px 48px;
   }
 
   /* Ensure scroll content has enough bottom padding for footer */
@@ -1158,6 +1158,12 @@ footer{
     background:#000;
     overflow:visible;
     padding-bottom:48px;
+  }
+  /* Prevent content scrolling behind footer on mobile */
+  body.map-active{padding-bottom:40px;}
+  /* Prevent content scrolling behind nav on mobile — globe card handles top */
+  body.map-active #mobile-globe-card{
+    margin-top:56px;
   }
   #mobile-globe-card{display:none;}
   /* Home overlay always on top on mobile */
