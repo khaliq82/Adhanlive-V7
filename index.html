@@ -1670,25 +1670,32 @@ footer{
     if(el) el.textContent=Math.round(pct);
   }
 
-  // Option B — smart fake curve:
-  // 0→60% fast (2s), 60→85% slow (slows to near stop), holds at 85% until ready
+  // Phase 1: 0→85% at constant speed over 4000ms
+  // Phase 2: 85→100% slow crawl, only completes when _loaderReady fires
   var startT=Date.now();
+  var PHASE1_DURATION=4000;
+  var PHASE1_TARGET=85;
+
   function getTargetPct(){
     if(_loaderReady) return 100;
     var elapsed=Date.now()-startT;
-    // Phase 1: 0→60% over 2000ms — fast
-    if(elapsed<2000) return (elapsed/2000)*60;
-    // Phase 2: 60→85% over next 8000ms — very slow, asymptotic
-    var t=(elapsed-2000)/8000;
-    return 60 + 25*(1-Math.exp(-t*1.5));
+    // Phase 1: constant linear speed 0→85%
+    if(elapsed<PHASE1_DURATION){
+      return (elapsed/PHASE1_DURATION)*PHASE1_TARGET;
+    }
+    // Phase 2: slow asymptotic crawl from 85% toward ~98%, never reaches 100 until ready
+    var t=(elapsed-PHASE1_DURATION)/20000;
+    return PHASE1_TARGET + 13*(1-Math.exp(-t*0.8));
   }
 
   function animate(){
     if(!alive) return;
     var target=getTargetPct();
-    // Smooth chase
     var diff=target-_displayPct;
-    _displayPct+=diff*0.06;
+    // Faster chase in phase 1, slower in phase 2
+    var speed=_displayPct<PHASE1_TARGET ? 0.04 : 0.02;
+    if(_loaderReady) speed=0.12; // snap to 100 quickly once ready
+    _displayPct+=diff*speed;
     if(Math.abs(diff)>0.05) drawRing(_displayPct);
     _rafId=requestAnimationFrame(animate);
   }
@@ -1709,8 +1716,8 @@ footer{
     },400);
   }
 
-  setTimeout(function(){_loaderTimer=true;tryHide();},2500);
-  setTimeout(function(){forceHide();},12000);
+  setTimeout(function(){_loaderTimer=true;tryHide();},4500);
+  setTimeout(function(){forceHide();},18000);
 
   window._loaderGlobeReady=function(){_loaderReady=true;tryHide();};
 
