@@ -144,15 +144,40 @@ nav.nav-hidden{
 }
 #mobile-menu-overlay.visible{display:block;}
 .nav-links a{
-  font-size:11px;letter-spacing:0.08em;color:#ffffff;font-weight:700;
+  font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.7);font-weight:600;
   text-decoration:none;cursor:pointer;transition:color 0.2s;
+  text-transform:uppercase;position:relative;
 }
 .nav-links{display:flex;gap:48px;align-items:center;}
 .nav-links a:hover,.nav-links a.active{color:var(--text);}
-.nav-links a.active{color:var(--gold);}
+.nav-links a.active{color:var(--cyan);}
+
+/* Cyan dot badge on feature nav links */
+.nav-dot-badge{
+  position:absolute;top:-6px;right:-8px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+  animation:pulse 2.4s ease-out infinite;
+}
+
+/* Hamburger pulsing ring */
+.hamburger{
+  display:none;
+  flex-direction:column;justify-content:center;gap:5px;
+  width:32px;height:32px;
+  background:none;border:none;cursor:pointer;padding:4px;
+  position:relative;
+}
+.hamburger::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.5);
+  animation:pulse 2.4s ease-out infinite;
+  pointer-events:none;
+}
 .nav-utc{
   display:flex;align-items:stretch;
-  padding:0;border:1px solid rgba(0,212,255,0.25);border-radius:4px;
+  padding:0;border:1px solid rgba(255,255,255,0.1);border-radius:6px;
   font-variant-numeric:tabular-nums;white-space:nowrap;
   overflow:hidden;
 }
@@ -160,14 +185,14 @@ nav.nav-hidden{
   display:flex;flex-direction:column;justify-content:center;
   gap:2px;padding:5px 12px;
 }
-.nav-utc-greg{font-size:10px;letter-spacing:0.04em;color:var(--gold);}
-.nav-utc-hijri{font-size:9px;letter-spacing:0.03em;color:rgba(0,212,255,0.6);}
-.nav-utc-divider{width:1px;background:rgba(0,212,255,0.2);align-self:stretch;}
+.nav-utc-hijri{font-size:9px;letter-spacing:0.04em;color:var(--cyan);font-weight:600;}
+.nav-utc-greg{font-size:9px;letter-spacing:0.03em;color:rgba(255,255,255,0.5);}
+.nav-utc-divider{width:1px;background:rgba(255,255,255,0.1);align-self:stretch;}
 .nav-utc-time{
   display:flex;align-items:center;justify-content:center;
   padding:5px 12px;
-  font-size:12px;font-weight:600;
-  letter-spacing:0.04em;color:var(--gold);
+  font-size:13px;font-weight:600;
+  letter-spacing:0.04em;color:#ffffff;
 }
 
 /* Globe fade overlay — mobile only */
@@ -530,6 +555,35 @@ body.map-active #map-footer{display:flex;}
 .mf-share-btn.whatsapp{background:#25D366;color:#fff;}
 .mf-share-btn.twitter{background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15);}
 .mf-share-btn.copy{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);}
+
+/* Mobile feature cards */
+#mobile-feature-cards{
+  display:none;
+  position:fixed;bottom:40px;left:0;right:0;
+  z-index:299;
+  background:rgba(0,0,0,0.88);
+  border-top:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  padding:8px 14px;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+#mobile-feature-cards::-webkit-scrollbar{display:none;}
+body.map-active #mobile-feature-cards{display:flex;}
+.mfc-card{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 12px;border-radius:20px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  text-decoration:none;white-space:nowrap;
+  flex-shrink:0;
+}
+.mfc-card:hover{background:rgba(255,255,255,0.1);}
+.mfc-icon{font-size:13px;}
+.mfc-label{font-size:10px;font-weight:600;letter-spacing:0.06em;color:rgba(255,255,255,0.8);text-transform:uppercase;}
+
 @media(max-width:768px){
   #map-footer{padding:0 14px;height:40px;}
   .map-footer-tagline,.map-footer-center,.map-footer-share-label{display:none;}
@@ -1557,9 +1611,9 @@ footer{
   <div class="nav-links" id="nav-links">
     <a id="nav-about" class="active" onclick="goHome();closeMobileMenu()">About</a>
     <a id="nav-map" onclick="enterMap();closeMobileMenu()">Live Map</a>
-    <a href="adhan-clock.html" onclick="closeMobileMenu()">Adhan Clock</a>
-    <a href="prayer-arcs.html" onclick="closeMobileMenu()">Arc Explorer</a>
-    <a href="ask-adhanlive.html" onclick="closeMobileMenu()">Ask AdhanLive</a>
+    <a href="adhan-clock.html" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
+    <a href="prayer-arcs.html" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
+    <a href="ask-adhanlive.html" onclick="closeMobileMenu();markVisited('ask')" id="nav-ask">Ask AdhanLive<span class="nav-dot-badge" id="dot-ask"></span></a>
     <a href="contact.html" onclick="closeMobileMenu()">Contact</a>
   </div>
   <div class="nav-right">
@@ -3993,5 +4047,40 @@ function shareMapMoment(platform){
   }
 }
 </script>
+
+<!-- Mobile Feature Cards -->
+<div id="mobile-feature-cards">
+  <a href="adhan-clock.html" class="mfc-card">
+    <span class="mfc-icon">⏱</span>
+    <span class="mfc-label">Adhan Clock</span>
+  </a>
+  <a href="prayer-arcs.html" class="mfc-card">
+    <span class="mfc-icon">🌐</span>
+    <span class="mfc-label">Arc Explorer</span>
+  </a>
+  <a href="ask-adhanlive.html" class="mfc-card">
+    <span class="mfc-icon">✨</span>
+    <span class="mfc-label">Ask AdhanLive</span>
+  </a>
+</div>
+
+<script>
+// Nav dot badges — hide if already visited
+function markVisited(key){
+  localStorage.setItem('visited_'+key,'1');
+}
+function initNavDots(){
+  ['clock','arc','ask'].forEach(key=>{
+    const dot=document.getElementById('dot-'+key);
+    if(dot){
+      if(localStorage.getItem('visited_'+key)){
+        dot.style.display='none';
+      }
+    }
+  });
+}
+document.addEventListener('DOMContentLoaded', initNavDots);
+</script>
+
 </body>
 </html>
