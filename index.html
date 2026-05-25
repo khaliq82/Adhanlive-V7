@@ -2984,7 +2984,7 @@ function updateRightPanel(activeMosques){
   // Build rows
   const rows=sorted.map(([country,count],i)=>{
     const code=NAME_TO_CODE[country]||country.slice(0,2).toUpperCase();
-    const flag=code.length===2?String.fromCodePoint(...[...code.toUpperCase()].map(c=>0x1F1E6+c.charCodeAt(0)-65)):'';
+    const flag=code.length===2?`<img src="https://flagcdn.com/16x12/${code.toLowerCase()}.png" width="16" height="12" style="border-radius:2px;vertical-align:middle" onerror="this.style.display='none'">`:'';
     return `<div class="country-row">
       <div class="country-rank">${i+1}</div>
       <div class="country-badge">${flag||code}</div>
