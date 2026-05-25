@@ -16269,7 +16269,7 @@ const MOSQUES_MOBILE_12=[
 [10.435997,45.007885,3.0,"Mosque","Somalia"],
 [10.433918,45.005938,3.0,"Mosque","Somalia"],
 [11.284244,49.175357,3.0,"Mosque","Somalia"],
-[11.967429,50.759179,3.0,"مسجد علولة المركزي","Somalia"],
+[11.967429,50.759179,3.0,"Masjid Tawakkal","Somalia"],
 [7.963608,49.845278,3.0,"Mosque","Somalia"],
 [9.940722,43.182516,3.0,"Borama Grand Mosque مسجد","Somalia"],
 [9.940219,43.185329,3.0,"Borama Central Mosque","Somalia"],
