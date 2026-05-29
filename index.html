@@ -1759,8 +1759,8 @@ footer{
 <nav>
   <div class="logo" onclick="goHome()"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></div>
   <div class="nav-links" id="nav-links">
-    <a id="nav-about" class="active" onclick="goHome();closeMobileMenu()">About</a>
-    <a id="nav-map" onclick="enterMap();closeMobileMenu()">Live Map</a>
+    <a id="nav-about" class="active" onclick="location.hash='home';goHome();closeMobileMenu()">Home</a>
+    <a id="nav-map" onclick="location.hash='map';enterMap();closeMobileMenu()">Live Map</a>
     <a href="adhan-clock.html" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
     <a href="prayer-arcs.html" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
     <a href="ask-adhanlive.html" onclick="closeMobileMenu();markVisited('ask')" id="nav-ask">Ask AdhanLive<span class="nav-dot-badge" id="dot-ask"></span></a>
@@ -4289,5 +4289,25 @@ document.addEventListener('DOMContentLoaded', initNavDots);
 <div id="mobile-top-mask"></div>
 <div id="mobile-fade-top"></div>
 <div id="mobile-bottom-mask"></div>
+
+<!-- ── Hash routing: /#map opens Live Map, /#home (or no hash) is Home ──
+     Additive only. Relies on existing enterMap()/goHome(), both of which
+     self-guard (enterMap: if(mapMode)return; goHome: if(!mapMode)return),
+     so repeated/late calls are safe no-ops. Does not touch globe or data. -->
+<script>
+(function(){
+  function routeFromHash(){
+    var h = location.hash;
+    if(h === '#map'){ if(typeof enterMap==='function') enterMap(); }
+    else if(h === '#home' || h === ''){ if(typeof goHome==='function') goHome(); }
+  }
+  // Deep-link on first load: only act on #map (Home is already the default view).
+  window.addEventListener('load', function(){
+    if(location.hash === '#map'){ setTimeout(function(){ if(typeof enterMap==='function') enterMap(); }, 150); }
+  });
+  // Keep view in sync with back/forward and manual hash edits.
+  window.addEventListener('hashchange', routeFromHash);
+})();
+</script>
 </body>
 </html>
