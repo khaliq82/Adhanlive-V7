@@ -78,6 +78,7 @@
   --bg:#000000;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
   --text:#ffffff;--text2:rgba(255,255,255,0.6);--text3:rgba(255,255,255,0.25);
   --cyan:#00d4ff;--gold:#00d4ff;--fajr:#818cf8;--dhuhr:#fbbf24;--asr:#fb923c;--maghrib:#f87171;--isha:#a78bfa;
+  --nav-h:calc(64px + env(safe-area-inset-top, 20px)); /* mobile nav height incl. safe area */
 }
 
 /* ── BASE ── */
@@ -605,27 +606,18 @@ body.map-active #map-footer{display:flex;}
   /* Top mask covers full nav including safe area */
   body.map-active #mobile-top-mask{
     top:0;
-    height:calc(64px + env(safe-area-inset-top, 20px));
+    height:var(--nav-h);
   }
-  /* Fade gradient starts below full nav height */
-  #mobile-fade-top{display:none;}
-  body.map-active #mobile-fade-top{
-    display:block;
-    position:fixed;
-    top:calc(64px + env(safe-area-inset-top, 20px));
-    left:0;right:0;
-    height:48px;
-    background:linear-gradient(to bottom, #000 0%, transparent 100%);
-    z-index:499;
-    pointer-events:none;
-  }
-  /* Mobile content wrapper starts below taller nav */
+  /* Fade gradient removed: it cast a shadow band onto the globe. The solid
+     top mask (sized to --nav-h) now handles the top edge cleanly. */
+  #mobile-fade-top{display:none !important;}
+  /* Mobile content wrapper starts exactly at the nav's bottom edge */
   body.map-active #mobile-content-wrapper{
-    padding-top:64px;
+    padding-top:var(--nav-h);
   }
-  /* Mobile globe card starts below taller nav */
+  /* Mobile globe card sits flush below the nav */
   body.map-active #mobile-globe-card{
-    margin-top:64px;
+    margin-top:0;
   }
 
   /* Mobile feature cards - premium vertical */
@@ -1204,11 +1196,13 @@ footer{
     padding-bottom:48px;
   }
   /* Solid black masks - highest z-index, content scrolls beneath */
-  #mobile-top-mask, #mobile-bottom-mask{display:none;}
-  body.map-active #mobile-top-mask{
+  #mobile-bottom-mask{display:none;}
+  /* Always-on opaque mask: guarantees the status-bar/notch + nav strip is
+     fully covered (sits below the nav, above the globe). Kills the bleed. */
+  #mobile-top-mask{
     display:block;
     position:fixed;top:0;left:0;right:0;
-    height:64px;background:#000;
+    height:var(--nav-h);background:#000;
     z-index:600;pointer-events:none;
   }
   body.map-active #mobile-bottom-mask{display:none !important;}
@@ -1219,7 +1213,7 @@ footer{
   #mobile-content-wrapper{display:none;}
   body.map-active #mobile-content-wrapper{
     display:block;
-    padding-top:56px;
+    padding-top:var(--nav-h);
     padding-bottom:40px;
   }
   /* Prevent content from going behind nav at top */
@@ -1295,7 +1289,7 @@ footer{
   #mobile-touch-hint{display:none;}
 
   /* Nav */
-  nav{padding:0 16px;}
+  nav{padding-left:16px;padding-right:16px;} /* keep safe-area padding-top intact */
   .nav-links{display:none !important;}
   .nav-links.mobile-open{display:flex !important;}
   .nav-utc{display:none !important;}
