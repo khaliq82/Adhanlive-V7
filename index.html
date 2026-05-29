@@ -611,13 +611,13 @@ body.map-active #map-footer{display:flex;}
   /* Fade gradient removed: it cast a shadow band onto the globe. The solid
      top mask (sized to --nav-h) now handles the top edge cleanly. */
   #mobile-fade-top{display:none !important;}
-  /* Mobile content wrapper starts exactly at the nav's bottom edge */
+  /* Mobile content wrapper starts below taller nav */
   body.map-active #mobile-content-wrapper{
-    padding-top:var(--nav-h);
+    padding-top:64px;
   }
-  /* Mobile globe card sits flush below the nav */
+  /* Mobile globe card starts below taller nav */
   body.map-active #mobile-globe-card{
-    margin-top:0;
+    margin-top:64px;
   }
 
   /* Mobile feature cards - premium vertical */
@@ -1213,7 +1213,7 @@ footer{
   #mobile-content-wrapper{display:none;}
   body.map-active #mobile-content-wrapper{
     display:block;
-    padding-top:var(--nav-h);
+    padding-top:56px;
     padding-bottom:40px;
   }
   /* Prevent content from going behind nav at top */
@@ -1470,9 +1470,13 @@ footer{
   }
   #mobile-globe-canvas{
     display:block;
-    width:100% !important;
-    height:100% !important;
-    border-radius:20px;
+    position:absolute;
+    left:50%;top:50%;
+    transform:translate(-50%,-50%);
+    /* Size is set inline by renderer.setSize() (rendered larger than the
+       card); the card's overflow:hidden clips it, so the globe fills the
+       panel WITHOUT changing camera zoom or the zoom range. */
+    border-radius:0;
     opacity:0;
     transition:opacity 0.6s ease;
   }
@@ -2280,7 +2284,7 @@ function enterMap(){
       if(mRenderer&&mgc){
         const s=mgc.offsetWidth;
         if(s>0){
-          mRenderer.setSize(s,s);
+          mRenderer.setSize(s*1.5,s*1.5); // match init scale
           mCamera.aspect=1;
           mCamera.updateProjectionMatrix();
           mRenderer.render(mScene,mCamera);
@@ -3975,7 +3979,7 @@ function initMobileGlobe(){
   mCamera.position.z=mTargetZ;
 
   mRenderer=new THREE.WebGLRenderer({canvas:cvs,antialias:false,alpha:true,powerPreference:'low-power'});
-  mRenderer.setSize(size,size);
+  mRenderer.setSize(size*1.5,size*1.5); // 1.5x = render larger than card, clipped → bigger globe, zoom range unchanged
   mRenderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 
   // Reuse already-loaded desktop texture — instant, no network request
@@ -4215,7 +4219,7 @@ function initMobileGlobe(){
   window.addEventListener('resize',()=>{
     if(window.innerWidth>768)return;
     const s=card.offsetWidth;
-    mRenderer.setSize(s,s);
+    mRenderer.setSize(s*1.5,s*1.5); // match init scale
   });
 }
 
