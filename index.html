@@ -871,6 +871,8 @@ body.map-active #map-footer{display:flex;}
 .popup-coords{font-size:9px;font-family:monospace;color:rgba(255,255,255,0.28);letter-spacing:0.02em;}
 .popup-copy{font-size:9px;background:transparent;border:0.5px solid transparent;border-radius:4px;padding:3px 9px;cursor:pointer;font-family:inherit;letter-spacing:0.04em;}
 @keyframes popupBlink{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.2);}}
+.popup-close-btn{position:absolute;top:8px;right:8px;width:22px;height:22px;border:none;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);border-radius:50%;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;transition:background 0.15s,color 0.15s;pointer-events:auto;padding:0;}
+.popup-close-btn:hover{background:rgba(255,255,255,0.15);color:#fff;}
 @keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(224,122,47,0.7);}70%{box-shadow:0 0 0 8px rgba(224,122,47,0);}100%{box-shadow:0 0 0 0 rgba(224,122,47,0);}}
 
 /* Zoom hint */
@@ -1933,6 +1935,7 @@ footer{
 
 <div id="mosque-popup">
   <div class="popup-inner">
+    <button class="popup-close-btn" onclick="closePopup()" aria-label="Close">&#x2715;</button>
     <svg class="popup-star" width="90" height="90" viewBox="0 0 100 100"><g transform="translate(50,50)"><polygon id="popup-star-1" points="0,-38 7,-7 38,0 7,7 0,38 -7,7 -38,0 -7,-7"/><polygon id="popup-star-2" points="0,-38 7,-7 38,0 7,7 0,38 -7,7 -38,0 -7,-7" transform="rotate(22.5)"/></g></svg>
     <div class="popup-top">
       <svg class="popup-minaret" xmlns="http://www.w3.org/2000/svg" viewBox="-5 -10 110 115">
@@ -2456,6 +2459,12 @@ function showPopup(x,y,m,ap){
   popupTimeout=setTimeout(function(){popup.style.display='none';},5000);
 }
 
+function closePopup(){
+  clearTimeout(popupTimeout);
+  var p=document.getElementById('mosque-popup');
+  if(p) p.style.display='none';
+}
+
 // ── PRAYER ENGINE ────────────────────────────────────────────
 const METHODS={
   MWL:{fajr:-18,isha:{angle:-17},asr:1},ISNA:{fajr:-15,isha:{angle:-15},asr:1},
@@ -2514,6 +2523,7 @@ let _introLastVel=0,_introBlending=false,_introBlendStart=0,_introBlendVel=0;
 // Pure velocity-based spin — no mode switching
 let _spinVel=0.003; // current spin velocity
 let _spinTarget=0.003; // target velocity
+let _zoomResumeTimer; // debounce: resume spin after user stops scrolling
 let _spinBlending=false;
 const isMob=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let targetZ=isMob?3.8:4.2;const DEFAULT_Z=isMob?3.8:4.2;
@@ -2600,6 +2610,11 @@ function initGlobe(){
     e.preventDefault();
     targetZ=Math.max(1.9,Math.min(8.0,targetZ+e.deltaY*0.002));
     if(targetZ<DEFAULT_Z-0.1)autoRot=false;
+    // After 4s of no scroll activity, ease back to default zoom and resume spin
+    clearTimeout(_zoomResumeTimer);
+    _zoomResumeTimer=setTimeout(function(){
+      if(!dragging){targetZ=DEFAULT_Z;autoRot=true;}
+    },4000);
   },{passive:false});
 
   // ── TOUCH: drag & pinch-zoom for mobile ──────────────────────
