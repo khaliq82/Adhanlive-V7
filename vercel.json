@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/home",       "destination": "/index.html" },
+    { "source": "/livemap",    "destination": "/index.html" },
+    { "source": "/adhanclock", "destination": "/adhan-clock.html" },
+    { "source": "/arcs",       "destination": "/prayer-arcs.html" },
+    { "source": "/ask",        "destination": "/ask-adhanlive.html" },
+    { "source": "/contact",    "destination": "/contact.html" }
+  ]
+}

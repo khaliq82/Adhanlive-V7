@@ -1761,12 +1761,12 @@ footer{
 <nav>
   <div class="logo" onclick="goHome()"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></div>
   <div class="nav-links" id="nav-links">
-    <a id="nav-about" class="active" onclick="location.hash='home';goHome();closeMobileMenu()">Home</a>
-    <a id="nav-map" onclick="location.hash='map';enterMap();closeMobileMenu()">Live Map</a>
-    <a href="adhan-clock.html" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
-    <a href="prayer-arcs.html" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
-    <a href="ask-adhanlive.html" onclick="closeMobileMenu();markVisited('ask')" id="nav-ask">Ask AdhanLive<span class="nav-dot-badge" id="dot-ask"></span></a>
-    <a href="contact.html" onclick="closeMobileMenu()">Contact</a>
+    <a id="nav-about" class="active" onclick="history.pushState({page:'home'},'','/home');goHome();closeMobileMenu()">Home</a>
+    <a id="nav-map" onclick="history.pushState({page:'livemap'},'','/livemap');enterMap();closeMobileMenu()">Live Map</a>
+    <a href="/adhanclock" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
+    <a href="/arcs" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
+    <a href="/ask" onclick="closeMobileMenu();markVisited('ask')" id="nav-ask">Ask AdhanLive<span class="nav-dot-badge" id="dot-ask"></span></a>
+    <a href="/contact" onclick="closeMobileMenu()">Contact</a>
   </div>
   <div class="nav-right">
     <div class="nav-utc" id="utc-clock">
@@ -1827,7 +1827,7 @@ footer{
   </div>
 
   <div class="home-cta">
-    <button class="enter-btn" onclick="enterMap()">
+    <button class="enter-btn" onclick="history.pushState({page:'livemap'},'','/livemap');enterMap()">
       Enter the Live Map
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
     </button>
@@ -1882,7 +1882,7 @@ footer{
   </div>
 
   <!-- Missing Mosque Strip -->
-  <a href="contact.html#mosque-form" class="missing-mosque-strip">
+  <a href="/contact#mosque-form" class="missing-mosque-strip">
     <span class="mm-icon">🕌</span>
     <span class="mm-text">Missing a Mosque? Add it</span>
     <span class="mm-arrow">→</span>
@@ -2073,7 +2073,7 @@ footer{
 
   <!-- Mobile Feature Cards -->
   <div class="mobile-feature-pills">
-    <a href="adhan-clock.html" class="mfp-pill">
+    <a href="/adhanclock" class="mfp-pill">
       <div class="mfp-icon">⏱</div>
       <div class="mfp-text">
         <div class="mfp-name">Adhan Clock</div>
@@ -2081,7 +2081,7 @@ footer{
       </div>
       <div class="mfp-arrow">→</div>
     </a>
-    <a href="prayer-arcs.html" class="mfp-pill">
+    <a href="/arcs" class="mfp-pill">
       <div class="mfp-icon">🌐</div>
       <div class="mfp-text">
         <div class="mfp-name">Arc Explorer</div>
@@ -2089,7 +2089,7 @@ footer{
       </div>
       <div class="mfp-arrow">→</div>
     </a>
-    <a href="ask-adhanlive.html" class="mfp-pill">
+    <a href="/ask" class="mfp-pill">
       <div class="mfp-icon">✨</div>
       <div class="mfp-text">
         <div class="mfp-name">Ask AdhanLive</div>
@@ -2100,7 +2100,7 @@ footer{
   </div>
 
   <!-- Missing Mosque Mobile -->
-  <a href="contact.html#mosque-form" id="mobile-missing-mosque" class="mobile-mm-strip">
+  <a href="/contact#mosque-form" id="mobile-missing-mosque" class="mobile-mm-strip">
     <span>🕌</span>
     <span>Missing a Mosque? Add it</span>
     <span style="color:var(--gold)">→</span>
@@ -4307,23 +4307,28 @@ document.addEventListener('DOMContentLoaded', initNavDots);
 <div id="mobile-fade-top"></div>
 <div id="mobile-bottom-mask"></div>
 
-<!-- ── Hash routing: /#map opens Live Map, /#home (or no hash) is Home ──
-     Additive only. Relies on existing enterMap()/goHome(), both of which
-     self-guard (enterMap: if(mapMode)return; goHome: if(!mapMode)return),
-     so repeated/late calls are safe no-ops. Does not touch globe or data. -->
+<!-- ── Path routing: /livemap → Live Map, /home or / → Home ──────────────
+     Uses History API. Vercel rewrites both paths to index.html.
+     enterMap/goHome self-guard so repeated calls are always safe. -->
 <script>
 (function(){
-  function routeFromHash(){
-    var h = location.hash;
-    if(h === '#map'){ if(typeof enterMap==='function') enterMap(); }
-    else if(h === '#home' || h === ''){ if(typeof goHome==='function') goHome(); }
+  function routeFromPath(){
+    var p=location.pathname;
+    if(p==='/livemap'){
+      if(typeof enterMap==='function') enterMap();
+    } else if(p==='/home'||p==='/'||p==='/index.html'){
+      if(typeof goHome==='function'&&typeof mapMode!=='undefined'&&mapMode) goHome();
+    }
   }
-  // Deep-link on first load: only act on #map (Home is already the default view).
-  window.addEventListener('load', function(){
-    if(location.hash === '#map'){ setTimeout(function(){ if(typeof enterMap==='function') enterMap(); }, 150); }
+  window.addEventListener('load',function(){
+    if(location.pathname==='/livemap'){
+      history.replaceState({page:'livemap'},'','/livemap');
+      setTimeout(function(){ if(typeof enterMap==='function') enterMap(); },150);
+    } else {
+      history.replaceState({page:'home'},'',location.pathname);
+    }
   });
-  // Keep view in sync with back/forward and manual hash edits.
-  window.addEventListener('hashchange', routeFromHash);
+  window.addEventListener('popstate',routeFromPath);
 })();
 </script>
 </body>
