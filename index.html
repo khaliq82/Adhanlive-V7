@@ -1197,23 +1197,25 @@ footer{
   }
   /* Solid black masks - highest z-index, content scrolls beneath */
   #mobile-bottom-mask{display:none;}
-  /* Always-on opaque mask: guarantees the status-bar/notch + nav strip is
-     fully covered (sits below the nav, above the globe). Kills the bleed. */
+  /* Top mask — hidden on mobile home (hero is full-screen immersive);
+     shown on live map where it seals the safe-area strip above the nav. */
   #mobile-top-mask{
-    display:block;
+    display:none;
     position:fixed;top:0;left:0;right:0;
     height:var(--nav-h);background:#000;
     z-index:600;pointer-events:none;
   }
+  body.map-active #mobile-top-mask{display:block;}
   body.map-active #mobile-bottom-mask{display:none !important;}
-  /* Nav and footer must sit above the masks */
-  nav{z-index:601 !important;}
+  /* Nav hidden on mobile home (hero fills full screen); shown in live map */
+  nav{display:none !important;z-index:601 !important;}
+  body.map-active nav{display:flex !important;}
   #map-footer{z-index:601 !important;}
   /* Mobile content wrapper */
   #mobile-content-wrapper{display:none;}
   body.map-active #mobile-content-wrapper{
     display:block;
-    padding-top:56px;
+    padding-top:var(--nav-h);
     padding-bottom:40px;
   }
   /* Prevent content from going behind nav at top */
@@ -1310,7 +1312,7 @@ footer{
   .home-cta-title{font-size:11px;}
 
   /* Globe canvas full screen on mobile */
-  #globe-canvas{top:56px;height:calc(100vh - 56px);}
+  #globe-canvas{top:0;height:100vh;} /* nav hidden on mobile home → full viewport */
 
   /* Mobile stats layout */
   .mobile-stats-grid{
@@ -2284,7 +2286,7 @@ function enterMap(){
       if(mRenderer&&mgc){
         const s=mgc.offsetWidth;
         if(s>0){
-          mRenderer.setSize(s*1.5,s*1.5); // match init scale
+          mRenderer.setSize(s*1.45,s*1.45); // match init scale
           mCamera.aspect=1;
           mCamera.updateProjectionMatrix();
           mRenderer.render(mScene,mCamera);
@@ -3979,7 +3981,7 @@ function initMobileGlobe(){
   mCamera.position.z=mTargetZ;
 
   mRenderer=new THREE.WebGLRenderer({canvas:cvs,antialias:false,alpha:true,powerPreference:'low-power'});
-  mRenderer.setSize(size*1.5,size*1.5); // 1.5x = render larger than card, clipped → bigger globe, zoom range unchanged
+  mRenderer.setSize(size*1.45,size*1.45); // 1.5x = render larger than card, clipped → bigger globe, zoom range unchanged
   mRenderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
 
   // Reuse already-loaded desktop texture — instant, no network request
@@ -4219,7 +4221,7 @@ function initMobileGlobe(){
   window.addEventListener('resize',()=>{
     if(window.innerWidth>768)return;
     const s=card.offsetWidth;
-    mRenderer.setSize(s*1.5,s*1.5); // match init scale
+    mRenderer.setSize(s*1.45,s*1.45); // match init scale
   });
 }
 
