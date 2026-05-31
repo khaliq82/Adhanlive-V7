@@ -1,40 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.8">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- Main -->
+  <!-- Home -->
   <url>
     <loc>https://www.adhanlive.com/</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
-  <!-- Contact -->
+  <!-- Live Map -->
   <url>
-    <loc>https://www.adhanlive.com/contact.html</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
+    <loc>https://www.adhanlive.com/livemap</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
   </url>
 
-  <!-- City Pages -->
+  <!-- Adhan Clock -->
   <url>
-    <loc>https://www.adhanlive.com/makkah.html</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.adhanlive.com/adhanclock</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Arc Explorer -->
   <url>
-    <loc>https://www.adhanlive.com/jakarta.html</loc>
-    <lastmod>2026-05-14</lastmod>
-    <changefreq>monthly</changefreq>
+    <loc>https://www.adhanlive.com/arcs</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- Ask AdhanLive -->
   <url>
-    <loc>https://www.adhanlive.com/kuala-lumpur.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <loc>https://www.adhanlive.com/ask</loc>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.7</priority>
   </url>
 
 </urlset>
