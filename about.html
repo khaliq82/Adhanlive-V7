@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About AdhanLive: The Live Global Map of Islamic Prayer</title>
+  <meta name="description" content="The story behind AdhanLive, a real-time visualization of the Islamic call to prayer across 280,621 mosques worldwide."/>
+  <link rel="canonical" href="https://www.adhanlive.com/about"/>
+  <meta property="og:title" content="About AdhanLive"/>
+  <meta property="og:description" content="The story behind AdhanLive, a real-time visualization of the Islamic call to prayer across 280,621 mosques worldwide."/>
+  <meta property="og:url" content="https://www.adhanlive.com/about"/>
+  <meta property="og:image" content="https://www.adhanlive.com/preview.jpg"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="About AdhanLive"/>
+  <meta name="twitter:description" content="The story behind AdhanLive, a real-time visualization of the Islamic call to prayer across 280,621 mosques worldwide."/>
+  <meta name="twitter:image" content="https://www.adhanlive.com/preview.jpg"/>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --cyan: #00d4ff;
+      --bg: #000;
+      --border: rgba(255,255,255,0.08);
+      --text: #fff;
+      --text2: rgba(255,255,255,0.7);
+      --text3: rgba(255,255,255,0.45);
+      --text4: rgba(255,255,255,0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── V6 NAV ── */
+    nav{position:sticky;top:0;z-index:500;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(0,0,0,0.85);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);flex-shrink:0;}
+    .logo{font-family:'Geist',sans-serif;font-weight:800;font-size:18px;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none;color:#fff;}
+    .logo-dot{width:9px;height:9px;border-radius:50%;background:#00d4ff;box-shadow:0 0 12px #00d4ff;position:relative;flex-shrink:0;}
+    .logo-dot::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(0,212,255,0.4);animation:logoPulse 2.4s ease-out infinite;}
+    @keyframes logoPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(2.8);opacity:0}}
+    .nav-right{display:flex;align-items:center;gap:12px;}
+    .nav-links{display:flex;gap:32px;align-items:center;}
+    .nav-links a{font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.7);font-weight:600;text-decoration:none;cursor:pointer;transition:color 0.2s;text-transform:uppercase;position:relative;display:inline-block;}
+    .nav-links a:hover{color:#ffffff;}
+    .nav-links a.active{color:#00d4ff;}
+    .nav-dot-badge{position:absolute;top:-5px;right:-10px;width:6px;height:6px;border-radius:50%;background:#00d4ff;box-shadow:0 0 8px #00d4ff;display:inline-block;z-index:10;}
+    .hamburger{display:none;flex-direction:column;justify-content:center;gap:5px;width:32px;height:32px;background:none;border:none;cursor:pointer;padding:4px;position:relative;}
+    .hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:transform 0.3s,opacity 0.3s;}
+    .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+    .hamburger.open span:nth-child(2){opacity:0;}
+    .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+    #mobile-menu-overlay{display:none;position:fixed;inset:0;z-index:498;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);}
+    #mobile-menu-overlay.visible{display:block;}
+    .nav-utc{display:flex;align-items:stretch;padding:0;border:1px solid rgba(255,255,255,0.1);border-radius:6px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;}
+    .nav-utc-dates{display:flex;flex-direction:column;justify-content:center;gap:2px;padding:5px 12px;}
+    .nav-utc-hijri{font-size:9px;letter-spacing:0.04em;color:#00d4ff;font-weight:600;}
+    .nav-utc-greg{font-size:9px;letter-spacing:0.03em;color:rgba(255,255,255,0.5);}
+    .nav-utc-divider{width:1px;background:rgba(255,255,255,0.1);align-self:stretch;}
+    .nav-utc-time{display:flex;align-items:center;justify-content:center;padding:5px 12px;font-size:13px;font-weight:600;letter-spacing:0.04em;color:#ffffff;}
+
+    /* ── PAGE CONTENT ── */
+    main {
+      flex: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 32px 120px;
+      width: 100%;
+    }
+
+    /* Hero */
+    .hero-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(42px, 7vw, 72px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--cyan);
+    }
+    .hero-intro {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text2);
+      font-weight: 300;
+      max-width: 640px;
+      border-left: 2px solid var(--cyan);
+      padding-left: 24px;
+      margin-bottom: 72px;
+    }
+
+    /* Divider */
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: var(--cyan);
+      margin: 56px 0;
+      opacity: 0.5;
+    }
+
+    /* Sections */
+    .section { margin-bottom: 64px; }
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text3);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .section-body {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text2);
+      font-weight: 300;
+    }
+    .section-body p { margin-bottom: 16px; }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    /* Motivation block */
+    .motivation {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      border-radius: 0 8px 8px 0;
+      padding: 32px 36px;
+      margin: 40px 0;
+    }
+    .motivation p {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      line-height: 1.8;
+      color: var(--text2);
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+    .motivation p:last-child { margin-bottom: 0; }
+    .motivation strong {
+      font-style: normal;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Goal block */
+    .goal {
+      text-align: center;
+      padding: 48px 32px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 56px 0;
+    }
+    .goal-text {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 3.5vw, 28px);
+      line-height: 1.5;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .goal-text em { color: var(--cyan); font-style: italic; }
+
+    /* Stats row */
+    .stats {
+      display: flex;
+      gap: 48px;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+    .stat { }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text3);
+      font-weight: 500;
+    }
+
+    /* Methods list */
+    .methods {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px 24px;
+      margin-top: 24px;
+      align-items: baseline;
+    }
+    .method { display: contents; }
+    .method-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .method-region {
+      font-size: 13px;
+      color: var(--text3);
+      line-height: 1.5;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-top: 24px;
+    }
+    .disclaimer p {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text3);
+    }
+
+    /* Attribution */
+    .attribution {
+      font-size: 13px;
+      color: var(--text3);
+      line-height: 1.7;
+      margin-top: 16px;
+    }
+    .attribution a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+    .attribution a:hover { text-decoration: underline; }
+
+    /* MAP FOOTER */
+    #map-footer{display:flex;position:fixed;bottom:0;left:0;right:0;height:44px;background:rgba(0,0,0,0.92);border-top:1px solid rgba(255,255,255,0.08);backdrop-filter:blur(12px);z-index:300;align-items:center;justify-content:space-between;padding:0 24px;}
+    .map-footer-left{display:flex;align-items:center;gap:8px;}
+    .map-footer-logo{font-family:'Geist',sans-serif;font-weight:800;font-size:15px;color:#fff;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px;}
+    .map-footer-tagline{font-size:10px;color:rgba(255,255,255,0.3);letter-spacing:0.04em;border-left:1px solid rgba(255,255,255,0.1);padding-left:8px;}
+    .map-footer-center{font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:0.05em;text-align:center;}
+    .map-footer-right{display:flex;align-items:center;gap:6px;}
+    .map-footer-share-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;margin-right:4px;}
+    .mf-share-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:none;cursor:pointer;font-size:10px;font-weight:600;letter-spacing:0.04em;transition:opacity 0.2s;}
+    .mf-share-btn:hover{opacity:0.85;}
+    .mf-share-btn.whatsapp{background:#25D366;color:#fff;}
+    .mf-share-btn.twitter{background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15);}
+    .mf-share-btn.copy{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);}
+
+    /* Mobile */
+    @media(max-width:768px){
+      nav{padding:0 20px;}
+      .nav-links{display:none;position:fixed;top:56px;left:0;right:0;z-index:9999;background:rgba(0,0,0,0.97);backdrop-filter:blur(24px);flex-direction:column;gap:0;border-bottom:1px solid rgba(255,255,255,0.08);}
+      .nav-links.mobile-open{display:flex;}
+      .nav-links a{padding:16px 24px;font-size:14px;letter-spacing:0.06em;border-bottom:1px solid rgba(255,255,255,0.06);width:100%;}
+      .hamburger{display:flex;}
+      .nav-utc{display:none !important;}
+      main{padding:48px 24px 100px;}
+      .hero-intro{font-size:16px;padding-left:16px;}
+      .stats{gap:32px;}
+      .method{flex-direction:column;gap:4px;}
+      .method-name{min-width:unset;}
+      #map-footer{position:static;height:auto;flex-direction:column;align-items:flex-start;gap:12px;padding:18px 20px;}
+      .map-footer-left{flex-direction:column;align-items:flex-start;gap:6px;}
+      .map-footer-tagline{border-left:none;padding-left:0;}
+      .map-footer-center{text-align:left;}
+      .map-footer-right{flex-wrap:wrap;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/home"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></a>
+  <div class="nav-links" id="nav-links">
+    <a href="/home" onclick="closeMobileMenu()">Home</a>
+    <a href="/livemap" onclick="closeMobileMenu()">Live Map</a>
+    <a href="/adhanclock" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock-link">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
+    <a href="/arcs" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
+    <a href="/ask" onclick="closeMobileMenu();markVisited('ask')" id="nav-ask">Ask AdhanLive<span class="nav-dot-badge" id="dot-ask"></span></a>
+    <a href="/about" class="active" onclick="closeMobileMenu()">About</a>
+    <a href="/contact" onclick="closeMobileMenu()">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-utc" id="utc-clock">
+      <div class="nav-utc-dates">
+        <div class="nav-utc-greg" id="utc-greg">Mon, 1 Jun 2026</div>
+        <div class="nav-utc-hijri" id="utc-hijri">4 Dhul Hijjah 1447</div>
+      </div>
+      <div class="nav-utc-divider"></div>
+      <div class="nav-utc-time" id="utc-time">12:00:00 PM</div>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
+<main>
+
+  <!-- Hero -->
+  <div class="hero-label">About AdhanLive</div>
+  <h1 class="hero-title">The Adhan<br><em>Never Stops.</em></h1>
+  <p class="hero-intro">
+    Somewhere on Earth, at every moment of every day, a mosque is calling the Islamic prayer.
+    It has been this way for 1,400 years. AdhanLive makes that continuous, planetary reality visible.
+  </p>
+
+  <!-- What is AdhanLive -->
+  <div class="section">
+    <div class="section-label">What is AdhanLive</div>
+    <h2 class="section-title">A living map of Islamic worship</h2>
+    <div class="section-body">
+      <p>AdhanLive is a real-time visualization of the Islamic call to prayer sweeping across Earth. It maps mosques across 150+ countries, calculating each mosque's prayer time using established Islamic prayer calculation methods. When a mosque's prayer time arrives, its dot lights up on the globe in the color of that prayer.</p>
+      <p>The result is a living map, updated every second, showing where on Earth the Adhan is being called right now.</p>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number">280,621</div>
+        <div class="stat-label">Mosques mapped</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">150+</div>
+        <div class="stat-label">Countries</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">5</div>
+        <div class="stat-label">Daily prayers</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Motivation -->
+  <div class="section">
+    <div class="section-label">The Story</div>
+    <h2 class="section-title">A statement with no proof</h2>
+    <div class="motivation">
+      <p>Around ten years ago, I came across a statement that stopped me: <strong>the Adhan is happening somewhere on Earth every single second.</strong> It was written as a fact, quietly, with no proof attached. No map. No data. No way to see it.</p>
+      <p>That statement stayed with me. Was it really true? What would it actually look like if you could see it? The only way to know was through data. Because data alone can confirm what words only claim.</p>
+      <p><strong>That curiosity became AdhanLive.</strong></p>
+    </div>
+  </div>
+
+  <!-- Goal -->
+  <div class="goal">
+    <div class="goal-text">
+      The goal is simple: <em>every mosque on Earth,</em><br>on one map, in real time.<br>
+      280,621 is not the destination.<br>It is the beginning.
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="section">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Built on Islamic scholarship</h2>
+    <div class="section-body">
+      <p>Each mosque in the database has an exact location. Prayer times are calculated using adhan.js, a trusted open-source Islamic prayer time library. Each region uses the calculation method recognised by its local Islamic authority.</p>
+
+    </div>
+    <div class="methods">
+      <div class="method">
+        <div class="method-name">Umm Al-Qura University</div>
+        <div class="method-region">Saudi Arabia, Yemen</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Gulf Method</div>
+        <div class="method-region">UAE, Kuwait, Qatar, Bahrain, Oman</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Egyptian General Authority of Survey</div>
+        <div class="method-region">Egypt, Libya, Sudan, Somalia</div>
+      </div>
+      <div class="method">
+        <div class="method-name">University of Islamic Sciences, Karachi</div>
+        <div class="method-region">Pakistan, Afghanistan, India</div>
+      </div>
+      <div class="method">
+        <div class="method-name">University of Islamic Sciences, Karachi (Hanafi)</div>
+        <div class="method-region">Bangladesh, Nepal, Sri Lanka</div>
+      </div>
+      <div class="method">
+        <div class="method-name">MUIS (Majlis Ugama Islam Singapura)</div>
+        <div class="method-region">Singapore</div>
+      </div>
+      <div class="method">
+        <div class="method-name">JAKIM</div>
+        <div class="method-region">Malaysia, Brunei</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Kemenag</div>
+        <div class="method-region">Indonesia</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Muslim World League</div>
+        <div class="method-region">North Africa, West &amp; East Africa, Levant, Europe, Central Asia, Australia</div>
+      </div>
+      <div class="method">
+        <div class="method-name">ISNA</div>
+        <div class="method-region">United States, Canada, Latin America</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Diyanet</div>
+        <div class="method-region">Turkey</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Institute of Geophysics, University of Tehran</div>
+        <div class="method-region">Iran</div>
+      </div>
+      <div class="method">
+        <div class="method-name">Russia</div>
+        <div class="method-region">Russia, Ukraine, Poland</div>
+      </div>
+      <div class="method">
+        <div class="method-name">France</div>
+        <div class="method-region">France</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Data & Disclaimer -->
+  <div class="section">
+    <div class="section-label">Data</div>
+    <h2 class="section-title">Mosque data</h2>
+    <div class="section-body">
+      <p>Mosque locations are sourced from OpenStreetMap contributors worldwide, a global community effort to map the world openly and freely.</p>
+    </div>
+    <div class="disclaimer">
+      <p><strong style="color:rgba(255,255,255,0.6);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Disclaimer</strong></p>
+      <br/>
+      <p>Prayer times on AdhanLive are calculated for visualization purposes using established Islamic calculation methods. For confirmed local prayer times, please refer to your local mosque or Islamic authority.</p>
+    </div>
+  </div>
+
+  <!-- Developer -->
+  <div class="section">
+    <div class="section-label">The Developer</div>
+    <h2 class="section-title">Built with purpose</h2>
+    <div class="section-body">
+      <p>AdhanLive was built by a Muslim developer with a passion for Islamic data and global visualization.</p>
+      <p>For questions, feedback, or mosque data contributions, visit the <a href="/contact" style="color:var(--cyan);text-decoration:none;">Contact page</a>.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- V6 Map Footer -->
+<div id="map-footer">
+  <div class="map-footer-left">
+    <div class="map-footer-logo"><div class="logo-dot" style="width:7px;height:7px;flex-shrink:0"></div><span style="color:#fff">Adhan<span style="color:#00d4ff">Live</span></span></div>
+    <div class="map-footer-tagline">The live global visualization of Islamic prayer</div>
+  </div>
+  <div class="map-footer-center">© 2026 AdhanLive · Mosque data © OpenStreetMap contributors</div>
+  <div class="map-footer-right">
+    <span class="map-footer-share-label">Share</span>
+    <button class="mf-share-btn whatsapp" onclick="shareMapMoment('whatsapp')">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </button>
+    <button class="mf-share-btn twitter" onclick="shareMapMoment('twitter')">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Post
+    </button>
+    <button class="mf-share-btn copy" onclick="shareMapMoment('copy')" id="mf-copy-btn">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy Link
+    </button>
+  </div>
+</div>
+
+<script>
+function toggleMobileMenu(){
+  document.getElementById('nav-links').classList.toggle('mobile-open');
+  document.getElementById('hamburger').classList.toggle('open');
+  document.getElementById('mobile-menu-overlay').classList.toggle('visible');
+}
+function closeMobileMenu(){
+  document.getElementById('nav-links').classList.remove('mobile-open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-menu-overlay').classList.remove('visible');
+}
+function markVisited(key){ localStorage.setItem('visited_'+key,'1'); }
+function initNavDots(){
+  ['clock','arc','ask'].forEach(key=>{
+    const dot=document.getElementById('dot-'+key);
+    if(dot && localStorage.getItem('visited_'+key)) dot.style.display='none';
+  });
+}
+document.addEventListener('DOMContentLoaded', initNavDots);
+function toHijri(date){
+  const jd=Math.floor((date.getTime()/86400000)+2440587.5);
+  let l=jd-1948440+10632;
+  const n=Math.floor((l-1)/10631);
+  l=l-10631*n+354;
+  const j=Math.floor((10985-l)/5316)*Math.floor((50*l)/17719)+Math.floor(l/5670)*Math.floor((43*l)/15238);
+  l=l-Math.floor((30-j)/15)*Math.floor((17719*j)/50)-Math.floor(j/16)*Math.floor((15238*j)/43)+29;
+  const month=Math.floor((24*l)/709);
+  const day=l-Math.floor((709*month)/24);
+  const year=30*n+j-30;
+  const hm=['Muharram','Safar','Rabi ul-Awwal','Rabi ul-Thani','Jumadal Awwal','Jumadal Thani','Rajab',"Sha'ban",'Ramadan','Shawwal',"Dhul Qa'dah",'Dhul Hijjah'];
+  return `${day} ${hm[month-1]} ${year}`;
+}
+function tickClock(){
+  const n=new Date();
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const lh=n.getHours(),lm=n.getMinutes(),ls=n.getSeconds();
+  const ap=lh<12?'AM':'PM',hh=lh%12||12;
+  const ge=document.getElementById('utc-greg');
+  const hi=document.getElementById('utc-hijri');
+  const te=document.getElementById('utc-time');
+  if(ge) ge.textContent=`${days[n.getDay()]}, ${n.getDate()} ${months[n.getMonth()]} ${n.getFullYear()}`;
+  if(hi) hi.textContent=toHijri(n);
+  if(te) te.textContent=`${String(hh).padStart(2,'0')}:${String(lm).padStart(2,'0')}:${String(ls).padStart(2,'0')} ${ap}`;
+}
+tickClock();
+setInterval(tickClock,1000);
+function shareMapMoment(platform){
+  const url='https://www.adhanlive.com/about';
+  const text='The Adhan never stops. AdhanLive makes 1,400 years of continuous Islamic prayer visible for the first time.';
+  if(platform==='whatsapp'){window.open('https://wa.me/?text='+encodeURIComponent(text+' '+url),'_blank');}
+  else if(platform==='twitter'){window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url),'_blank');}
+  else if(platform==='copy'){
+    navigator.clipboard.writeText(url).then(()=>{
+      const btn=document.getElementById('mf-copy-btn');
+      btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(()=>{btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy Link';},2000);
+    });
+  }
+}
+</script>
+</body>
+</html>
