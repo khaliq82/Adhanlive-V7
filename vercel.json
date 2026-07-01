@@ -27,6 +27,85 @@
     {
       "source": "/contact",
       "destination": "/contact.html"
+    },
+    {
+      "source": "/qibla",
+      "destination": "/qibla.html"
+    },
+    {
+      "source": "/prayer-times",
+      "destination": "/prayer-times.html"
+    },
+    {
+      "source": "/prayer-times/makkah",
+      "destination": "/makkah.html"
+    },
+    {
+      "source": "/prayer-times/madinah",
+      "destination": "/madinah.html"
+    },
+    {
+      "source": "/prayer-times/cairo",
+      "destination": "/cairo.html"
+    },
+    {
+      "source": "/prayer-times/istanbul",
+      "destination": "/istanbul.html"
+    },
+    {
+      "source": "/prayer-times/jakarta",
+      "destination": "/jakarta.html"
+    },
+    {
+      "source": "/prayer-times/dubai",
+      "destination": "/dubai.html"
+    },
+    {
+      "source": "/prayer-times/london",
+      "destination": "/london.html"
+    },
+    {
+      "source": "/prayer-times/karachi",
+      "destination": "/karachi.html"
+    },
+    {
+      "source": "/prayer-times/dhaka",
+      "destination": "/dhaka.html"
+    },
+    {
+      "source": "/prayer-times/new-york",
+      "destination": "/new-york.html"
+    },
+    {
+      "source": "/prayer-times/kuala-lumpur",
+      "destination": "/kuala-lumpur.html"
+    },
+    {
+      "source": "/prayer-times/jeddah",
+      "destination": "/jeddah.html"
+    },
+    {
+      "source": "/prayer-times/riyadh",
+      "destination": "/riyadh.html"
+    },
+    {
+      "source": "/prayer-times/singapore",
+      "destination": "/singapore.html"
+    },
+    {
+      "source": "/prayer-times/mumbai",
+      "destination": "/mumbai.html"
+    },
+    {
+      "source": "/prayer-times/paris",
+      "destination": "/paris.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/makkah.html",
+      "destination": "/prayer-times/makkah",
+      "permanent": true
     }
   ]
 }
