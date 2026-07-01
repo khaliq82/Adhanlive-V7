@@ -3380,6 +3380,25 @@ function toHijri(date){
   }
 }
 
+function tickClock(){
+  const n=new Date();
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayName=days[n.getDay()];
+  const date=n.getDate();
+  const month=months[n.getMonth()];
+  const year=n.getFullYear();
+  const lh=n.getHours(),lm=n.getMinutes(),ls=n.getSeconds();
+  const ap=lh<12?'AM':'PM',hh=lh%12||12;
+  const timeStr=`${String(hh).padStart(2,'0')}:${String(lm).padStart(2,'0')}:${String(ls).padStart(2,'0')} ${ap}`;
+  const hijri=toHijri(n);
+  const gregEl=document.getElementById('utc-greg');
+  const hijriEl=document.getElementById('utc-hijri');
+  const timeEl=document.getElementById('utc-time');
+  if(gregEl) gregEl.textContent=`${dayName}, ${date} ${month} ${year}`;
+  if(hijriEl) hijriEl.textContent=hijri;
+  if(timeEl) timeEl.textContent=timeStr;
+
   // Update hero LIVE NOW indicator (reads from cached values - no loops)
   const liveText=document.getElementById('home-live-text');
   if(liveText&&window._liveNowText){
