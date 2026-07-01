@@ -3398,6 +3398,27 @@ function tickClock(){
   if(gregEl) gregEl.textContent=`${dayName}, ${date} ${month} ${year}`;
   if(hijriEl) hijriEl.textContent=hijri;
   if(timeEl) timeEl.textContent=timeStr;
+  const mh=(n.getUTCHours()+3)%24,mm=n.getUTCMinutes(),ms=n.getUTCSeconds();
+  const map=mh<12?'AM':'PM',mhh=mh%12||12;
+  const el=document.getElementById('makkah-time');
+  if(el)el.textContent=`${String(mhh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ms).padStart(2,'0')} ${map}`;
+  const mel=document.getElementById('m-makkah-time');
+  if(mel)mel.textContent=`${String(mhh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ms).padStart(2,'0')} ${map}`;
+
+  // Update hero journey widget
+  const hTotal=document.getElementById('hero-total-count');
+  if(hTotal&&_adhanTotal>0){
+    const hPct=Math.round((_adhanCompleted+(_adhanTotal-_adhanCompleted-_adhanRemaining))/_adhanTotal*100);
+    hTotal.innerHTML=_adhanTotal.toLocaleString()+'<span>calls today</span>';
+    const hBar=document.getElementById('hero-bar');
+    const hPctEl=document.getElementById('hero-pct');
+    const hDone=document.getElementById('hero-done-count');
+    const hRem=document.getElementById('hero-remaining-count');
+    if(hBar){hBar.style.width=hPct+'%';hBar.classList.add('has-data');}
+    if(hPctEl)hPctEl.textContent=hPct+'% done';
+    if(hDone)hDone.textContent='✓ '+_adhanCompleted.toLocaleString()+' done';
+    if(hRem)hRem.textContent='⏳ '+_adhanRemaining.toLocaleString()+' to come';
+  }
 
   // Update hero LIVE NOW indicator (reads from cached values - no loops)
   const liveText=document.getElementById('home-live-text');
@@ -3405,7 +3426,7 @@ function tickClock(){
     liveText.innerHTML=window._liveNowText;
   }
 
-    // Mobile stats updated from tick() - no loop here
+  // Mobile stats updated from tick() - no loop here
 }
 setInterval(tickClock,1000);tickClock();
 
