@@ -1826,7 +1826,7 @@ footer{
 // Evaporates with a blur/fade dust effect.
 window._loaderGlobeReady = function(){
   var o = document.getElementById('globe-loading-overlay');
-  if(!o) return;
+  if(!o || o.style.display !== 'flex') return;
   // Dust evaporation
   o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
   o.style.filter = 'blur(12px)';
@@ -1840,71 +1840,71 @@ window._loaderGlobeReady = function(){
 </script>
 <script>
 (function(){
+  // Only run on home page — not when going to livemap
+  if(window._gotoLivemap) return;
+
   var cv=document.getElementById('loader-ring-canvas');
   if(!cv) return;
   var ctx=cv.getContext('2d');
-  var CX=100,CY=100,R=90,alive=true;
-  var _displayPct=0,_rafId=null;
+  var CX=100,CY=100,R=90;
+  var pct=0;
+  var DURATION=2500;
   var startT=Date.now();
-  var DURATION=2500; // 2.5s straight to 100%
+  var done=false;
 
-  function drawRing(pct){
-    var p=pct/100;
+  function drawRing(p){
     ctx.clearRect(0,0,200,200);
+    // Track ring
     ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);
     ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;ctx.stroke();
-    if(p<=0) return;
-    var sa=-Math.PI/2,ea=sa+(p*Math.PI*2);
+    if(p<=0){
+      var el=document.getElementById('loader-pct');
+      if(el)el.textContent='0';
+      return;
+    }
+    var sa=-Math.PI/2, ea=sa+(p/100*Math.PI*2);
+    // Glow
     ctx.save();ctx.shadowColor='rgba(255,255,255,0.5)';ctx.shadowBlur=14;
     ctx.beginPath();ctx.arc(CX,CY,R,sa,ea);
     ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=2.5;ctx.stroke();
     ctx.restore();
+    // Main arc
     ctx.beginPath();ctx.arc(CX,CY,R,sa,ea);
     ctx.strokeStyle='rgba(255,253,250,0.75)';ctx.lineWidth=1;ctx.stroke();
-    var dx=CX+R*Math.cos(ea),dy=CY+R*Math.sin(ea);
+    // Tip dot
     ctx.save();ctx.shadowColor='rgba(255,255,255,1)';ctx.shadowBlur=18;
-    ctx.beginPath();ctx.arc(dx,dy,4,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-    ctx.restore();
+    ctx.beginPath();ctx.arc(CX+R*Math.cos(ea),CY+R*Math.sin(ea),4,0,Math.PI*2);
+    ctx.fillStyle='#fff';ctx.fill();ctx.restore();
+    // Percentage text
     var el=document.getElementById('loader-pct');
-    if(el) el.textContent=Math.round(pct);
+    if(el)el.textContent=Math.round(p);
   }
 
-  function getTargetPct(){
-    var elapsed=Date.now()-startT;
-    return Math.min(100, (elapsed/DURATION)*100);
-  }
-
-  function animate(){
-    if(!alive) return;
-    var target=getTargetPct();
-    var diff=target-_displayPct;
-    _displayPct+=diff*0.06;
-    if(Math.abs(diff)>0.05) drawRing(_displayPct);
-    if(_displayPct>=99.5){ forceHide(); return; }
-    _rafId=requestAnimationFrame(animate);
-  }
-
-  function tryHide(){ forceHide(); }
-  function forceHide(){
-    if(!alive) return;
-    alive=false;
-    cancelAnimationFrame(_rafId);
+  function hide(){
+    if(done)return; done=true;
     drawRing(100);
-    var el=document.getElementById('loader-pct');
-    if(el) el.textContent='100';
-    var l=document.getElementById('site-loader');
-    if(!l||l.style.display==='none') return;
+    var el=document.getElementById('loader-pct'); if(el)el.textContent='100';
+    var l=document.getElementById('site-loader'); if(!l)return;
     setTimeout(function(){
       l.classList.add('fade');
       setTimeout(function(){l.style.display='none';},800);
     },300);
   }
 
-  // Safety fallback — force hide after 4s no matter what
-  setTimeout(forceHide, 4000);
-
+  // Draw initial frame
   drawRing(0);
-  animate();
+
+  // Use setInterval for reliable timing (rAF can be throttled on background tabs)
+  var interval=setInterval(function(){
+    if(done){clearInterval(interval);return;}
+    var elapsed=Date.now()-startT;
+    pct=Math.min(100,(elapsed/DURATION)*100);
+    drawRing(pct);
+    if(pct>=100){clearInterval(interval);hide();}
+  },16);
+
+  // Hard fallback at 4s
+  setTimeout(function(){clearInterval(interval);hide();},4000);
 })();
 </script>
 
@@ -2471,6 +2471,9 @@ let flatImg = null, flatLoaded = false;
 function enterMap(){
   if(mapMode) return;
   mapMode = true;
+
+  // Clean up livemap routing class
+  document.documentElement.classList.remove('goto-livemap');
 
   // Show globe loading overlay until mosque dots are ready
   if(!dotGeo || !allMosques.length){
