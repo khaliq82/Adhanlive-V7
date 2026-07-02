@@ -1714,6 +1714,25 @@ footer{
   font-family:'Geist',sans-serif;
 }
 #site-loader.fade{opacity:0;pointer-events:none;}
+#site-loader.skip-anim{display:none !important;}
+
+/* Simple globe loading overlay for internal navigation */
+#globe-loading-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+  pointer-events:none;
+}
+#globe-loading-overlay.visible{display:flex;}
+#globe-loading-overlay .glo-text{
+  font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
+  color:rgba(255,255,255,0.35);font-family:'Geist',sans-serif;
+}
+#globe-loading-overlay .glo-dot{
+  width:6px;height:6px;border-radius:50%;background:rgba(0,212,255,0.6);
+  animation:glo-pulse 1.2s ease-in-out infinite;
+}
+@keyframes glo-pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
 .loader-overlay{
   display:flex;flex-direction:column;align-items:center;gap:0;
   opacity:0;animation:loaderFadeIn 0.8s ease 0.2s forwards;
@@ -1758,6 +1777,12 @@ footer{
   <link rel="preload" href="earth.jpg" as="image">
 </head>
 <body>
+<!-- ── GLOBE LOADING OVERLAY (for internal navigation) ── -->
+<div id="globe-loading-overlay">
+  <div class="glo-dot"></div>
+  <div class="glo-text">Loading</div>
+</div>
+
 <!-- ── LOADING SCREEN ── -->
 <div id="site-loader">
   <div class="loader-overlay">
@@ -1775,6 +1800,24 @@ footer{
   </div>
 </div>
 <script>
+// Detect internal navigation — skip minaret loader, show globe loading overlay instead
+(function(){
+  var isInternal = sessionStorage.getItem('adhanlive_internal_nav') === '1';
+  sessionStorage.removeItem('adhanlive_internal_nav');
+  if(isInternal && location.pathname === '/livemap'){
+    var loader = document.getElementById('site-loader');
+    if(loader) loader.classList.add('skip-anim');
+    var overlay = document.getElementById('globe-loading-overlay');
+    if(overlay) overlay.classList.add('visible');
+    // Hide globe overlay once mosque data starts rendering
+    window._loaderGlobeReady = function(){
+      var o = document.getElementById('globe-loading-overlay');
+      if(o) o.classList.remove('visible');
+    };
+    return;
+  }
+})();
+
 (function(){
   var cv=document.getElementById('loader-ring-canvas');
   if(!cv) return;
