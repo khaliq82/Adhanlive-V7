@@ -914,6 +914,7 @@ body.map-active #map-footer{display:flex;}
   transform:translateY(100vh);
   transition:transform 0.65s cubic-bezier(0.77,0,0.175,1);
   overflow:hidden;
+  isolation:isolate;
 }
 #viewport-2.active{transform:translateY(0);}
 
@@ -3651,6 +3652,8 @@ function enterViewport2(){
   if(_vp2Animating||mapMode) return;
   _vp2Animating=true;
   document.getElementById('viewport-2').classList.add('active');
+  // Hide hero overlay so it doesn't show through on mobile
+  document.getElementById('home-overlay').classList.add('hidden');
   // Show nav when on VP2
   var nav=document.querySelector('nav');
   if(nav) nav.classList.remove('nav-hidden');
@@ -3666,6 +3669,8 @@ function exitViewport2(){
   _vp2Animating=true;
   _vp2Active=false;
   document.getElementById('viewport-2').classList.remove('active');
+  // Restore hero overlay
+  document.getElementById('home-overlay').classList.remove('hidden');
   // Re-hide nav (hero hides it)
   var nav=document.querySelector('nav');
   if(nav) nav.classList.add('nav-hidden');
