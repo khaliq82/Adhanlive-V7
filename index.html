@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
 <script>
-// Runs before body renders — sets class on <html> so CSS can hide home-overlay immediately
+/* Run before any HTML renders — determines if we go to live map or home */
 (function(){
-  var toLivemap = location.pathname==='/livemap' ||
-                  sessionStorage.getItem('adhanlive_internal_nav')==='1';
-  if(toLivemap) document.documentElement.classList.add('goto-livemap');
+  var toLivemap = location.pathname === '/livemap' ||
+                  sessionStorage.getItem('adhanlive_internal_nav') === '1';
+  sessionStorage.removeItem('adhanlive_internal_nav');
+  if(toLivemap){
+    document.documentElement.classList.add('goto-livemap');
+    window._gotoLivemap = true;
+  }
 })();
 </script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -293,9 +297,11 @@ nav.nav-hidden{
   transition:opacity 1s ease,visibility 1s ease;
   pointer-events:all;
 }
+/* When going directly to live map — hide home elements instantly before render */
 html.goto-livemap #home-overlay{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;}
 html.goto-livemap #site-loader{display:none !important;}
-html.goto-livemap #globe-loading-overlay{display:flex !important;}
+html.goto-livemap #vp-scroll-hint{display:none !important;}
+html.goto-livemap #viewport-2{display:none !important;}
 #home-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
 
 /* ── LIVE PILL ── */
@@ -1725,30 +1731,29 @@ footer{
   font-family:'Geist',sans-serif;
 }
 #site-loader.fade{opacity:0;pointer-events:none;}
-#site-loader.skip-anim{display:none !important;}
 
-/* Simple globe loading overlay */
+/* Globe loading overlay — shown while mosque data loads, evaporates on ready */
 #globe-loading-overlay{
   display:none;position:fixed;
   top:56px;left:320px;right:300px;bottom:44px;
-  z-index:200;
+  z-index:500;
   align-items:center;justify-content:center;
   flex-direction:row;gap:10px;
   pointer-events:none;
 }
-#globe-loading-overlay.visible{display:flex;}
-#globe-loading-overlay .glo-text{
-  font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;
-  color:rgba(255,255,255,0.35);font-family:'Geist',sans-serif;
-}
 #globe-loading-overlay .glo-dot{
-  width:6px;height:6px;border-radius:50%;background:rgba(0,212,255,0.6);
-  animation:glo-pulse 1.2s ease-in-out infinite;flex-shrink:0;
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(0,212,255,0.7);
+  box-shadow:0 0 8px rgba(0,212,255,0.5);
+  animation:glo-pulse 1.2s ease-in-out infinite;
+  flex-shrink:0;
 }
-@keyframes glo-pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
-@media(max-width:768px){
-  #globe-loading-overlay{left:0;right:0;top:0;bottom:0;}
+#globe-loading-overlay .glo-text{
+  font-size:10px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);font-family:'Geist',sans-serif;
 }
+@keyframes glo-pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.6);}}
+@media(max-width:768px){#globe-loading-overlay{left:0;right:0;}}
 .loader-overlay{
   display:flex;flex-direction:column;align-items:center;gap:0;
   opacity:0;animation:loaderFadeIn 0.8s ease 0.2s forwards;
@@ -1816,43 +1821,23 @@ footer{
   </div>
 </div>
 <script>
-// ── LIVE MAP ENTRY DETECTION ─────────────────────────────────────────────────
-(function(){
-  var goingToMap = location.pathname === '/livemap' ||
-                   sessionStorage.getItem('adhanlive_internal_nav') === '1';
-  sessionStorage.removeItem('adhanlive_internal_nav');
-
-  if(goingToMap){
-    window._skipToLivemap = true;
-    // Remove goto-livemap class after enterMap runs (cleanup)
-    // Globe loading overlay is shown via CSS above
-  }
-
-  // _loaderGlobeReady is called by buildDots() when mosque dots are ready.
-  // Evaporates the globe loading overlay with a dust/fade effect.
-  window._loaderGlobeReady = function(){
-    var o = document.getElementById('globe-loading-overlay');
-    if(!o || !o.classList.contains('visible') && !document.documentElement.classList.contains('goto-livemap')){
-      // Also check inline display:flex set by CSS
-      if(!o || o.style.display === 'none') return;
-    }
-    document.documentElement.classList.remove('goto-livemap');
-    o.style.transition = 'opacity 1.2s ease, filter 1.2s ease, transform 1.4s ease';
-    o.style.filter = 'blur(8px)';
-    o.style.transform = 'scale(1.08)';
-    o.style.opacity = '0';
-    o.style.display = 'flex'; // keep visible during transition
-    setTimeout(function(){
-      o.style.display = '';
-      o.classList.remove('visible');
-      o.style.transition = '';
-      o.style.filter = '';
-      o.style.transform = '';
-      o.style.opacity = '';
-    }, 1400);
-  };
-})();
-
+// ── GLOBE LOADING OVERLAY — shown while mosque data loads ──────────────────
+// Called by buildDots() once mosque dots are on the globe.
+// Evaporates with a blur/fade dust effect.
+window._loaderGlobeReady = function(){
+  var o = document.getElementById('globe-loading-overlay');
+  if(!o) return;
+  // Dust evaporation
+  o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
+  o.style.filter = 'blur(12px)';
+  o.style.transform = 'scale(1.12)';
+  o.style.opacity = '0';
+  setTimeout(function(){
+    o.style.display = 'none';
+    o.style.transition = o.style.filter = o.style.transform = o.style.opacity = '';
+  }, 1400);
+};
+</script>
 (function(){
   var cv=document.getElementById('loader-ring-canvas');
   if(!cv) return;
@@ -2486,10 +2471,15 @@ function enterMap(){
   if(mapMode) return;
   mapMode = true;
 
-  // Show globe loading overlay if mosque dots aren't built yet
+  // Show globe loading overlay until mosque dots are ready
   if(!dotGeo || !allMosques.length){
     var o = document.getElementById('globe-loading-overlay');
-    if(o){o.style.display='flex';o.style.opacity='1';o.style.filter='';o.style.transform='';}
+    if(o){
+      o.style.display = 'flex';
+      o.style.opacity = '1';
+      o.style.filter = '';
+      o.style.transform = '';
+    }
   }
 
   // Trigger intro spin on first visit only
@@ -2533,11 +2523,13 @@ function enterMap(){
   canvas.style.opacity='1';
   const vt=document.getElementById('view-toggle'); if(vt)vt.style.display='flex';
 
-  // Slide in panels
-  setTimeout(()=>{
+  // Slide in panels — immediate if coming from livemap route, animated otherwise
+  var panelDelay = window._gotoLivemap ? 0 : 600;
+  window._gotoLivemap = false; // consume flag
+  setTimeout(function(){
     document.getElementById('panel-left').classList.add('visible');
     document.getElementById('panel-right').classList.add('visible');
-  }, 600);
+  }, panelDelay);
 
   // Mobile badge
   // mobile-live-badge removed on mobile
@@ -4932,24 +4924,32 @@ window.addEventListener('pageshow', function(e){
      Uses History API. Vercel rewrites both paths to index.html.
      enterMap/goHome self-guard so repeated calls are always safe. -->
 <script>
+// ── ROUTING ──────────────────────────────────────────────────────────────────
+// Handles /livemap vs /home URL routing using History API.
+// Vercel rewrites both to index.html.
 (function(){
-  function routeFromPath(){
-    var p=location.pathname;
-    if(p==='/livemap'){
-      if(typeof enterMap==='function') enterMap();
-    } else if(p==='/home'||p==='/'||p==='/index.html'){
-      if(typeof goHome==='function'&&typeof mapMode!=='undefined'&&mapMode) goHome();
-    }
+  function goToLivemap(){
+    history.replaceState({page:'livemap'},'','/livemap');
+    if(typeof enterMap === 'function') enterMap();
   }
-  window.addEventListener('load',function(){
-    if(window._skipToLivemap || location.pathname==='/livemap'){
-      history.replaceState({page:'livemap'},'','/livemap');
-      if(typeof enterMap==='function') enterMap();
+  function goToHome(){
+    if(typeof goHome === 'function' && typeof mapMode !== 'undefined' && mapMode) goHome();
+  }
+
+  window.addEventListener('load', function(){
+    // _gotoLivemap was set in <head> if URL is /livemap or sessionStorage flag was set
+    if(window._gotoLivemap || location.pathname === '/livemap'){
+      goToLivemap();
     } else {
       history.replaceState({page:'home'},'',location.pathname);
     }
   });
-  window.addEventListener('popstate',routeFromPath);
+
+  window.addEventListener('popstate', function(){
+    var p = location.pathname;
+    if(p === '/livemap') goToLivemap();
+    else goToHome();
+  });
 })();
 </script>
 </body>
