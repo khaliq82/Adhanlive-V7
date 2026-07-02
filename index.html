@@ -1933,15 +1933,7 @@ footer{
   <!-- Journey inline — no box -->
   <div class="hero-journey">
     <div class="hero-journey-label">Today's Adhan Journey</div>
-    <div class="hero-journey-count" id="hero-total-count"><span style="color:var(--cyan)">—</span><span>calls today</span></div>
-    <div class="hero-progress-wrap">
-      <div class="hero-progress-fill" id="hero-bar" style="width:0%"></div>
-    </div>
-    <div class="hero-progress-meta">
-      <span class="hero-progress-done" id="hero-done-count">—</span>
-      <span class="hero-progress-pct" id="hero-pct">—</span>
-      <span class="hero-progress-remaining" id="hero-remaining-count">—</span>
-    </div>
+    <div class="hero-journey-count" id="hero-total-count"><span style="color:var(--cyan)">1,300,700+</span><span>calls today</span></div>
   </div>
 
   <!-- Tagline -->
@@ -2421,7 +2413,7 @@ let fmDragging = false;
 let fmDragStart = {x:0,y:0}, fmDragOrigin = {x:0,y:0};
 let flatImg = null, flatLoaded = false;
 // (declared at top)
-let _adhanCompleted=0, _adhanRemaining=0, _adhanTotal=0, _adhanLastCalc=0;
+
 
 function enterMap(){
   if(mapMode) return;
@@ -2523,7 +2515,6 @@ function enterMap(){
 
   // Calculate adhan stats immediately
   setTimeout(()=>{
-    calcAdhanStats();
     const prog=document.getElementById('adhan-progress-section');
     if(prog)prog.style.opacity='1';
   }, 100);
@@ -3183,7 +3174,6 @@ self.onmessage=function(e){
     URL.revokeObjectURL(url);
     worker.terminate();
     // Recalculate stats now that cache is ready — this will signal the loader
-    calcAdhanStats();
   };
 
   worker.onerror = function(err){
@@ -3402,74 +3392,12 @@ function getNextPrayer(times){
 // ── Adhan Progress Stats (incremental) ───────────────────────
 // (declared at top)
 
-function calcAdhanStats(){
-  if(!allMosques||!allMosques.length)return;
-  const now=new Date();
-  const utcH=now.getUTCHours()+now.getUTCMinutes()/60+now.getUTCSeconds()/3600;
-  const WINDOW=3/60;
-  let completed=0,remaining=0,todayTotal=0;
-  if(_prayerCache){
-    allMosques.forEach((m,i)=>{
-      const localH=(utcH+m.tz+48)%24;
-      for(let j=0;j<5;j++){
-        const t=_prayerCache[i*5+j];
-        if(t<0)continue;
-        const prayerUTC=((t-m.tz)%24+24)%24;
-        const diff=localH-t;
-        const diffWrapped=((diff%24)+24)%24;
-        if(prayerUTC<=utcH){
-          if(diffWrapped>WINDOW&&diffWrapped<23){completed++;todayTotal++;}
-          else if(diffWrapped<=WINDOW){todayTotal++;}
-        } else {
-          remaining++;
-        }
-      }
-    });
-  } else {
-    allMosques.forEach(m=>{
-      const times=calcPrayers(m.lat,m.lon,m.tz,now,m.country);
-      const localH=(utcH+m.tz+48)%24;
-      ['fajr','dhuhr','asr','maghrib','isha'].forEach(p=>{
-        if(isNaN(times[p]))return;
-        const t=((times[p]%24)+24)%24;
-        const prayerUTC=((t-m.tz)%24+24)%24;
-        const diff=localH-t;
-        const diffWrapped=((diff%24)+24)%24;
-        if(prayerUTC<=utcH){
-          if(diffWrapped>WINDOW&&diffWrapped<23){completed++;todayTotal++;}
-          else if(diffWrapped<=WINDOW){todayTotal++;}
-        } else {
-          remaining++;
-        }
-      });
-    });
-  }
-  _adhanCompleted=completed;
-  _adhanRemaining=remaining;
-  _adhanTotal=todayTotal+remaining;
-  _adhanLastCalc=Date.now();
-  // Signal loader only when we have real data (cache populated)
-  if(_prayerCache && _adhanTotal>0 && window._loaderGlobeReady){
-    window._loaderGlobeReady();
-    window._loaderGlobeReady=null;
-  }
-}
 
 function getAdhanStats(){
-  // Return pre-calculated values instantly — no lag!
-  return{
-    total:_adhanTotal||0,
-    completed:_adhanCompleted||0,
-    active:0, // provided by activeMosques.length in updateRightPanel
-    remaining:_adhanRemaining||0
-  };
+  return{total:0,completed:0,active:0,remaining:0};
 }
-
-// Keep backward compat
 let todayCountCache=0,todayCountTime=0;
-function getTodayCount(){
-  return _adhanCompleted;
-}
+function getTodayCount(){ return 0; }
 
 function updateRightPanel(activeMosques){
   if(!activeMosques||!activeMosques.length)return;
@@ -3618,21 +3546,6 @@ function tickClock(){
   if(el)el.textContent=`${String(mhh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ms).padStart(2,'0')} ${map}`;
   const mel=document.getElementById('m-makkah-time');
   if(mel)mel.textContent=`${String(mhh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ms).padStart(2,'0')} ${map}`;
-
-  // Update hero journey widget
-  const hTotal=document.getElementById('hero-total-count');
-  if(hTotal&&_adhanTotal>0){
-    const hPct=Math.round((_adhanCompleted+(_adhanTotal-_adhanCompleted-_adhanRemaining))/_adhanTotal*100);
-    hTotal.innerHTML=_adhanTotal.toLocaleString()+'<span>calls today</span>';
-    const hBar=document.getElementById('hero-bar');
-    const hPctEl=document.getElementById('hero-pct');
-    const hDone=document.getElementById('hero-done-count');
-    const hRem=document.getElementById('hero-remaining-count');
-    if(hBar){hBar.style.width=hPct+'%';hBar.classList.add('has-data');}
-    if(hPctEl)hPctEl.textContent=hPct+'% done';
-    if(hDone)hDone.textContent='✓ '+_adhanCompleted.toLocaleString()+' done';
-    if(hRem)hRem.textContent='⏳ '+_adhanRemaining.toLocaleString()+' to come';
-  }
 
   // Update hero LIVE NOW indicator (reads from cached values - no loops)
   const liveText=document.getElementById('home-live-text');
@@ -4201,7 +4114,6 @@ async function main(){
   // Load mosques in background — don't block home page
   const firstChunk=MOSQUES_OSM.slice(0,CHUNK).map(toMosque);
   allMosques=firstChunk;
-  calcAdhanStats(); // Show early estimate immediately
   mobileTick(); // Update mobile stats as data loads
   try { buildDots(allMosques); } catch(e) { console.warn('buildDots failed:', e); }
   tick();
@@ -4213,7 +4125,7 @@ async function main(){
     const chunk=MOSQUES_OSM.slice(loaded,loaded+CHUNK).map(toMosque);
     allMosques=allMosques.concat(chunk);loaded+=CHUNK;
     try { buildDots(allMosques); } catch(e) {}
-    if(loaded % (CHUNK*5) === 0) calcAdhanStats(); // Update every 5 chunks
+    if(loaded % (CHUNK*5) === 0)
     tick();
     document.getElementById('s-mosques').textContent=allMosques.length.toLocaleString();
     // Update mobile mosques count too
@@ -4226,8 +4138,6 @@ async function main(){
   if(window._buildMDots) window._buildMDots();
   // Pre-calculate all prayer times (runs once, used all day)
   precalcPrayerTimes();
-  calcAdhanStats();
-  setInterval(calcAdhanStats,60000);
   // Refresh pre-calculation at midnight
   const msToMidnight=(86400-(new Date().getUTCHours()*3600+new Date().getUTCMinutes()*60+new Date().getUTCSeconds()))*1000;
   setTimeout(()=>{precalcPrayerTimes();setInterval(precalcPrayerTimes,86400000);},msToMidnight);
