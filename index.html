@@ -263,7 +263,7 @@ nav.nav-hidden{
   .home-s1{margin-bottom:8px;}
   .home-s1-l1,.home-s1-l2{font-size:clamp(24px,7vw,30px);}
   .hero-journey{margin-bottom:8px;}
-  .hero-journey-count{font-size:clamp(28px,9vw,38px);}
+  .hero-journey-count .journey-number{font-size:clamp(28px,9vw,38px);}
   .home-s2{margin-bottom:8px;}
   .hero-credibility{margin-bottom:10px;}
 }
@@ -419,7 +419,11 @@ nav.nav-hidden{
   color:var(--cyan);line-height:1;margin-bottom:4px;letter-spacing:-0.02em;
   display:flex;align-items:baseline;gap:8px;justify-content:center;
 }
-.hero-journey-count span{
+.hero-journey-count .journey-number{
+  font-size:clamp(44px,11vw,64px);font-weight:700;color:var(--cyan);
+  font-family:'Playfair Display',serif;letter-spacing:-0.02em;line-height:1;
+}
+.hero-journey-count .journey-label{
   font-size:clamp(13px,3vw,15px);font-weight:400;
   color:rgba(255,255,255,0.4);letter-spacing:0.05em;
   font-family:'Geist','Inter',sans-serif;
@@ -1920,7 +1924,7 @@ footer{
   <!-- Journey inline — no box -->
   <div class="hero-journey">
     <div class="hero-journey-label">Today's Adhan Journey</div>
-    <div class="hero-journey-count" id="hero-total-count"><span style="color:var(--cyan)">1,300,700+</span><span>calls today</span></div>
+    <div class="hero-journey-count" id="hero-total-count"><span class="journey-number">1,300,700+</span><span class="journey-label">calls today</span></div>
   </div>
 
   <!-- Tagline -->
