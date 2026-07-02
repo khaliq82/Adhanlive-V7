@@ -1776,7 +1776,9 @@ footer{
   if(!cv) return;
   var ctx=cv.getContext('2d');
   var CX=100,CY=100,R=90,alive=true;
-  var _displayPct=0,_loaderReady=false,_loaderTimer=false,_rafId=null;
+  var _displayPct=0,_rafId=null;
+  var startT=Date.now();
+  var DURATION=2500; // 2.5s straight to 100%
 
   function drawRing(pct){
     var p=pct/100;
@@ -1799,37 +1801,22 @@ footer{
     if(el) el.textContent=Math.round(pct);
   }
 
-  // Phase 1: 0→85% at constant speed over 4000ms
-  // Phase 2: 85→100% slow crawl, only completes when _loaderReady fires
-  var startT=Date.now();
-  var PHASE1_DURATION=4000;
-  var PHASE1_TARGET=85;
-
   function getTargetPct(){
-    if(_loaderReady) return 100;
     var elapsed=Date.now()-startT;
-    // Phase 1: constant linear speed 0→85%
-    if(elapsed<PHASE1_DURATION){
-      return (elapsed/PHASE1_DURATION)*PHASE1_TARGET;
-    }
-    // Phase 2: slow asymptotic crawl from 85% toward ~98%, never reaches 100 until ready
-    var t=(elapsed-PHASE1_DURATION)/20000;
-    return PHASE1_TARGET + 13*(1-Math.exp(-t*0.8));
+    return Math.min(100, (elapsed/DURATION)*100);
   }
 
   function animate(){
     if(!alive) return;
     var target=getTargetPct();
     var diff=target-_displayPct;
-    // Faster chase in phase 1, slower in phase 2
-    var speed=_displayPct<PHASE1_TARGET ? 0.04 : 0.02;
-    if(_loaderReady) speed=0.12; // snap to 100 quickly once ready
-    _displayPct+=diff*speed;
+    _displayPct+=diff*0.06;
     if(Math.abs(diff)>0.05) drawRing(_displayPct);
+    if(_displayPct>=99.5){ forceHide(); return; }
     _rafId=requestAnimationFrame(animate);
   }
 
-  function tryHide(){if(_loaderTimer&&_loaderReady) forceHide();}
+  function tryHide(){ forceHide(); }
   function forceHide(){
     if(!alive) return;
     alive=false;
@@ -1842,13 +1829,13 @@ footer{
     setTimeout(function(){
       l.classList.add('fade');
       setTimeout(function(){l.style.display='none';},800);
-    },400);
+    },300);
   }
 
-  setTimeout(function(){_loaderTimer=true;tryHide();},4500);
-  setTimeout(function(){forceHide();},18000);
+  // Safety fallback — force hide after 4s no matter what
+  setTimeout(forceHide, 4000);
 
-  window._loaderGlobeReady=function(){_loaderReady=true;tryHide();};
+  window._loaderGlobeReady=function(){ /* no-op — loader no longer waits for globe */ };
 
   drawRing(0);
   animate();
