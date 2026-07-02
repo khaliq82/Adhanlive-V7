@@ -530,7 +530,7 @@ h1.hero-city { margin: 0; padding: 0; }
   <a class="logo" href="/home"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></a>
   <div class="nav-links" id="nav-links">
     <a href="/home" onclick="closeMobileMenu()">Home</a>
-    <a href="/livemap" onclick="closeMobileMenu()">Live Map</a>
+    <a href="/livemap" onclick="goToLiveMap()">Live Map</a>
     <a href="/adhanclock" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock-link">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
     <a href="/arcs" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
     <a href="/prayer-times" class="active" onclick="closeMobileMenu()">Prayer Times</a>
@@ -2767,6 +2767,12 @@ document.addEventListener('DOMContentLoaded',function(){
   drawToggleCurvedText('QIBLA');
 });
 
+</script>
+<script>
+function goToLiveMap(){
+  try{ sessionStorage.setItem('adhanlive_internal_nav','1'); }catch(e){}
+  window.location.href='/livemap';
+}
 </script>
 </body>
 </html>

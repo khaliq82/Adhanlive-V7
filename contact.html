@@ -275,7 +275,7 @@ nav{
   <a class="logo" href="/home"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></a>
   <div class="nav-links" id="nav-links">
     <a href="/home" onclick="closeMobileMenu()">Home</a>
-    <a href="/livemap" onclick="sessionStorage.setItem('adhanlive_internal_nav','1');closeMobileMenu()">Live Map</a>
+    <a href="/livemap" onclick="goToLiveMap()">Live Map</a>
     <a href="/adhanclock" onclick="closeMobileMenu();markVisited('clock')" id="nav-clock">Adhan Clock<span class="nav-dot-badge" id="dot-clock"></span></a>
     <a href="/arcs" onclick="closeMobileMenu();markVisited('arc')" id="nav-arc">Arc Explorer<span class="nav-dot-badge" id="dot-arc"></span></a>
     <a href="/prayer-times" onclick="closeMobileMenu()">Prayer Times</a>
@@ -512,5 +512,11 @@ function shareMapMoment(platform){
 }
 </script>
 
+<script>
+function goToLiveMap(){
+  try{ sessionStorage.setItem('adhanlive_internal_nav','1'); }catch(e){}
+  window.location.href='/livemap';
+}
+</script>
 </body>
 </html>
