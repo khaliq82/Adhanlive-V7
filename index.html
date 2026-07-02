@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// Runs before body renders — sets class on <html> so CSS can hide home-overlay immediately
+(function(){
+  var toLivemap = location.pathname==='/livemap' ||
+                  sessionStorage.getItem('adhanlive_internal_nav')==='1';
+  if(toLivemap) document.documentElement.classList.add('goto-livemap');
+})();
+</script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
   <meta charset="UTF-8">
@@ -285,6 +293,9 @@ nav.nav-hidden{
   transition:opacity 1s ease,visibility 1s ease;
   pointer-events:all;
 }
+html.goto-livemap #home-overlay{opacity:0 !important;visibility:hidden !important;pointer-events:none !important;}
+html.goto-livemap #site-loader{display:none !important;}
+html.goto-livemap #globe-loading-overlay{display:flex !important;}
 #home-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
 
 /* ── LIVE PILL ── */
@@ -1806,38 +1817,33 @@ footer{
 </div>
 <script>
 // ── LIVE MAP ENTRY DETECTION ─────────────────────────────────────────────────
-// If the URL is /livemap (direct link, nav click from other page, or bookmark),
-// skip the minaret loader entirely and go straight to live map with globe overlay.
 (function(){
   var goingToMap = location.pathname === '/livemap' ||
                    sessionStorage.getItem('adhanlive_internal_nav') === '1';
   sessionStorage.removeItem('adhanlive_internal_nav');
 
   if(goingToMap){
-    // Hide minaret loader immediately — don't show it at all
-    var loader = document.getElementById('site-loader');
-    if(loader) loader.classList.add('skip-anim');
-    // Hide home overlay immediately — no hero flash
-    var homeOverlay = document.getElementById('home-overlay');
-    if(homeOverlay) homeOverlay.classList.add('hidden');
-    // Show globe loading overlay
-    var overlay = document.getElementById('globe-loading-overlay');
-    if(overlay) overlay.classList.add('visible');
-    // Signal to routing script
     window._skipToLivemap = true;
+    // Remove goto-livemap class after enterMap runs (cleanup)
+    // Globe loading overlay is shown via CSS above
   }
 
   // _loaderGlobeReady is called by buildDots() when mosque dots are ready.
-  // It evaporates the globe loading overlay with a dust/fade effect.
+  // Evaporates the globe loading overlay with a dust/fade effect.
   window._loaderGlobeReady = function(){
     var o = document.getElementById('globe-loading-overlay');
-    if(!o || !o.classList.contains('visible')) return;
-    // Dust evaporation effect
+    if(!o || !o.classList.contains('visible') && !document.documentElement.classList.contains('goto-livemap')){
+      // Also check inline display:flex set by CSS
+      if(!o || o.style.display === 'none') return;
+    }
+    document.documentElement.classList.remove('goto-livemap');
     o.style.transition = 'opacity 1.2s ease, filter 1.2s ease, transform 1.4s ease';
     o.style.filter = 'blur(8px)';
     o.style.transform = 'scale(1.08)';
     o.style.opacity = '0';
+    o.style.display = 'flex'; // keep visible during transition
     setTimeout(function(){
+      o.style.display = '';
       o.classList.remove('visible');
       o.style.transition = '';
       o.style.filter = '';
@@ -2176,19 +2182,19 @@ footer{
     <!-- Total possible -->
     <div class="adhan-total-row">
       <span class="adhan-total-label">TOTAL CALLS TODAY <span style="font-size:7px;font-weight:400;text-transform:lowercase;letter-spacing:0.05em;opacity:0.8;">since first Fajr</span></span>
-      <span class="adhan-total-val" id="adhan-total">—</span>
+      <span class="adhan-total-val" id="adhan-total" style="color:rgba(255,255,255,0.25);font-style:italic;font-size:11px;">loading...</span>
     </div>
 
     <!-- Progress bar -->
     <div class="adhan-bar-wrap">
       <div class="adhan-bar-fill" id="adhan-bar"></div>
     </div>
-    <div class="adhan-pct" id="adhan-pct">0%</div>
+    <div class="adhan-pct" id="adhan-pct" style="color:rgba(255,255,255,0.25);font-style:italic;">loading...</div>
 
     <!-- Three stats row -->
     <div class="adhan-stats-row">
       <div class="adhan-stat">
-        <div class="adhan-stat-val adhan-done" id="adhan-completed">—</div>
+        <div class="adhan-stat-val adhan-done" id="adhan-completed" style="color:rgba(255,255,255,0.25);font-size:11px;">—</div>
         <div class="adhan-stat-lbl">✅ Completed</div>
       </div>
       <div class="adhan-stat adhan-stat-mid">
@@ -2196,7 +2202,7 @@ footer{
         <div class="adhan-stat-lbl">🔴 Live now</div>
       </div>
       <div class="adhan-stat">
-        <div class="adhan-stat-val adhan-upcoming" id="adhan-remaining">—</div>
+        <div class="adhan-stat-val adhan-upcoming" id="adhan-remaining" style="color:rgba(255,255,255,0.25);font-size:11px;">—</div>
         <div class="adhan-stat-lbl">⏳ Still to come</div>
       </div>
     </div>
@@ -2481,9 +2487,9 @@ function enterMap(){
   mapMode = true;
 
   // Show globe loading overlay if mosque dots aren't built yet
-  if(!dotGeo){
+  if(!dotGeo || !allMosques.length){
     var o = document.getElementById('globe-loading-overlay');
-    if(o && !o.classList.contains('visible')) o.classList.add('visible');
+    if(o){o.style.display='flex';o.style.opacity='1';o.style.filter='';o.style.transform='';}
   }
 
   // Trigger intro spin on first visit only
@@ -3555,12 +3561,18 @@ function updateRightPanel(activeMosques){
   const elAct=document.getElementById('adhan-active');
   const elRem=document.getElementById('adhan-remaining');
 
-  if(elTotal)elTotal.textContent=total.toLocaleString();
+  if(elTotal){
+    elTotal.textContent=total.toLocaleString();
+    elTotal.style.color='';elTotal.style.fontStyle='';elTotal.style.fontSize='';
+  }
   if(elBar)elBar.style.width=pct+'%';
-  if(elPct)elPct.textContent=pct+"% of today's calls done";
-  if(elComp)elComp.textContent=stats.completed.toLocaleString();
+  if(elPct){
+    elPct.textContent=pct+"% of today's calls done";
+    elPct.style.color='';elPct.style.fontStyle='';
+  }
+  if(elComp){elComp.textContent=stats.completed.toLocaleString();elComp.style.color='';elComp.style.fontSize='';}
   if(elAct)elAct.textContent=liveNow.toLocaleString();
-  if(elRem)elRem.textContent=(total-stats.completed-liveNow).toLocaleString();
+  if(elRem){elRem.textContent=(total-stats.completed-liveNow).toLocaleString();elRem.style.color='';elRem.style.fontSize='';}
 
   // Cache live now text (calculated every 10s, displayed every 1s by tickClock)
   if(activeMosques&&activeMosques.length>0){
