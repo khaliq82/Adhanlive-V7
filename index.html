@@ -1716,9 +1716,11 @@ footer{
 #site-loader.fade{opacity:0;pointer-events:none;}
 #site-loader.skip-anim{display:none !important;}
 
-/* Simple globe loading overlay for internal navigation */
+/* Simple globe loading overlay */
 #globe-loading-overlay{
-  display:none;position:fixed;inset:0;z-index:200;
+  display:none;position:fixed;
+  top:56px;left:320px;right:300px;bottom:44px;
+  z-index:200;
   align-items:center;justify-content:center;
   flex-direction:row;gap:10px;
   pointer-events:none;
@@ -1733,6 +1735,9 @@ footer{
   animation:glo-pulse 1.2s ease-in-out infinite;flex-shrink:0;
 }
 @keyframes glo-pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
+@media(max-width:768px){
+  #globe-loading-overlay{left:0;right:0;top:0;bottom:0;}
+}
 .loader-overlay{
   display:flex;flex-direction:column;align-items:center;gap:0;
   opacity:0;animation:loaderFadeIn 0.8s ease 0.2s forwards;
@@ -1800,30 +1805,46 @@ footer{
   </div>
 </div>
 <script>
-// Detect internal navigation — skip minaret loader, show globe loading overlay instead
+// ── LIVE MAP ENTRY DETECTION ─────────────────────────────────────────────────
+// If the URL is /livemap (direct link, nav click from other page, or bookmark),
+// skip the minaret loader entirely and go straight to live map with globe overlay.
 (function(){
-  var isInternal = sessionStorage.getItem('adhanlive_internal_nav') === '1';
+  var goingToMap = location.pathname === '/livemap' ||
+                   sessionStorage.getItem('adhanlive_internal_nav') === '1';
   sessionStorage.removeItem('adhanlive_internal_nav');
-  if(isInternal){
-    // Skip minaret loader entirely
+
+  if(goingToMap){
+    // Hide minaret loader immediately — don't show it at all
     var loader = document.getElementById('site-loader');
     if(loader) loader.classList.add('skip-anim');
-    // Show minimal globe loading overlay
+    // Hide home overlay immediately — no hero flash
+    var homeOverlay = document.getElementById('home-overlay');
+    if(homeOverlay) homeOverlay.classList.add('hidden');
+    // Show globe loading overlay
     var overlay = document.getElementById('globe-loading-overlay');
     if(overlay) overlay.classList.add('visible');
-    // Set flag so routing script jumps straight to map
+    // Signal to routing script
     window._skipToLivemap = true;
-    // Hide globe overlay once globe is ready
-    window._loaderGlobeReady = function(){
-      var o = document.getElementById('globe-loading-overlay');
-      if(o){
-        o.style.transition='opacity 0.6s ease';
-        o.style.opacity='0';
-        setTimeout(function(){ o.classList.remove('visible'); o.style.opacity=''; },600);
-      }
-    };
-    return;
   }
+
+  // _loaderGlobeReady is called by buildDots() when mosque dots are ready.
+  // It evaporates the globe loading overlay with a dust/fade effect.
+  window._loaderGlobeReady = function(){
+    var o = document.getElementById('globe-loading-overlay');
+    if(!o || !o.classList.contains('visible')) return;
+    // Dust evaporation effect
+    o.style.transition = 'opacity 1.2s ease, filter 1.2s ease, transform 1.4s ease';
+    o.style.filter = 'blur(8px)';
+    o.style.transform = 'scale(1.08)';
+    o.style.opacity = '0';
+    setTimeout(function(){
+      o.classList.remove('visible');
+      o.style.transition = '';
+      o.style.filter = '';
+      o.style.transform = '';
+      o.style.opacity = '';
+    }, 1400);
+  };
 })();
 
 (function(){
@@ -1889,11 +1910,6 @@ footer{
 
   // Safety fallback — force hide after 4s no matter what
   setTimeout(forceHide, 4000);
-
-  // Only set no-op if internal nav block hasn't already set a real handler
-  if(!window._loaderGlobeReady){
-    window._loaderGlobeReady=function(){ /* no-op — loader no longer waits for globe */ };
-  }
 
   drawRing(0);
   animate();
@@ -2463,6 +2479,12 @@ let flatImg = null, flatLoaded = false;
 function enterMap(){
   if(mapMode) return;
   mapMode = true;
+
+  // Show globe loading overlay if mosque dots aren't built yet
+  if(!dotGeo){
+    var o = document.getElementById('globe-loading-overlay');
+    if(o && !o.classList.contains('visible')) o.classList.add('visible');
+  }
 
   // Trigger intro spin on first visit only
   if(!_introFired){
@@ -4908,9 +4930,8 @@ window.addEventListener('pageshow', function(e){
     }
   }
   window.addEventListener('load',function(){
-    if(location.pathname==='/livemap' || window._skipToLivemap){
+    if(window._skipToLivemap || location.pathname==='/livemap'){
       history.replaceState({page:'livemap'},'','/livemap');
-      // Jump immediately — no delay, no home flash
       if(typeof enterMap==='function') enterMap();
     } else {
       history.replaceState({page:'home'},'',location.pathname);
