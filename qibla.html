@@ -185,7 +185,7 @@ nav{position:sticky;top:0;z-index:500;height:56px;display:flex;align-items:cente
   <a href="/home" class="logo"><div class="logo-dot"></div><span style="display:inline">Adhan<span style="color:#00d4ff">Live</span></span></a>
   <div class="nav-links" id="nav-links">
     <a href="/home" onclick="closeMobileMenu()">Home</a>
-    <a href="/livemap" onclick="closeMobileMenu()">Live Map</a>
+    <a href="/livemap" onclick="sessionStorage.setItem('adhanlive_internal_nav','1');closeMobileMenu()">Live Map</a>
     <a href="/adhanclock" onclick="closeMobileMenu()">Adhan Clock</a>
     <a href="/arcs" onclick="closeMobileMenu()">Arc Explorer</a>
     <a href="/prayer-times" onclick="closeMobileMenu()">Prayer Times</a>
