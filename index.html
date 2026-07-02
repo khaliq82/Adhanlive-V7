@@ -4,7 +4,11 @@
 <script>
 /* Run before any HTML renders — determines if we go to live map or home */
 (function(){
-  var toLivemap = location.pathname === '/livemap' ||
+  var href = location.href;
+  var path = location.pathname;
+  var toLivemap = path === '/livemap' ||
+                  path.indexOf('livemap') !== -1 ||
+                  href.indexOf('/livemap') !== -1 ||
                   sessionStorage.getItem('adhanlive_internal_nav') === '1';
   sessionStorage.removeItem('adhanlive_internal_nav');
   if(toLivemap){
@@ -4941,8 +4945,12 @@ window.addEventListener('pageshow', function(e){
   }
 
   window.addEventListener('load', function(){
-    // _gotoLivemap was set in <head> if URL is /livemap or sessionStorage flag was set
-    if(window._gotoLivemap || location.pathname === '/livemap'){
+    var path = location.pathname;
+    var isLivemap = window._gotoLivemap ||
+                    path === '/livemap' ||
+                    path.indexOf('livemap') !== -1 ||
+                    location.href.indexOf('/livemap') !== -1;
+    if(isLivemap){
       goToLivemap();
     } else {
       history.replaceState({page:'home'},'',location.pathname);
