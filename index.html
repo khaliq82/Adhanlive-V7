@@ -1720,7 +1720,7 @@ footer{
 #globe-loading-overlay{
   display:none;position:fixed;inset:0;z-index:200;
   align-items:center;justify-content:center;
-  flex-direction:column;gap:12px;
+  flex-direction:row;gap:10px;
   pointer-events:none;
 }
 #globe-loading-overlay.visible{display:flex;}
@@ -1730,7 +1730,7 @@ footer{
 }
 #globe-loading-overlay .glo-dot{
   width:6px;height:6px;border-radius:50%;background:rgba(0,212,255,0.6);
-  animation:glo-pulse 1.2s ease-in-out infinite;
+  animation:glo-pulse 1.2s ease-in-out infinite;flex-shrink:0;
 }
 @keyframes glo-pulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:1;transform:scale(1.5);}}
 .loader-overlay{
@@ -1804,15 +1804,23 @@ footer{
 (function(){
   var isInternal = sessionStorage.getItem('adhanlive_internal_nav') === '1';
   sessionStorage.removeItem('adhanlive_internal_nav');
-  if(isInternal && location.pathname === '/livemap'){
+  if(isInternal){
+    // Skip minaret loader entirely
     var loader = document.getElementById('site-loader');
     if(loader) loader.classList.add('skip-anim');
+    // Show minimal globe loading overlay
     var overlay = document.getElementById('globe-loading-overlay');
     if(overlay) overlay.classList.add('visible');
-    // Hide globe overlay once mosque data starts rendering
+    // Set flag so routing script jumps straight to map
+    window._skipToLivemap = true;
+    // Hide globe overlay once globe is ready
     window._loaderGlobeReady = function(){
       var o = document.getElementById('globe-loading-overlay');
-      if(o) o.classList.remove('visible');
+      if(o){
+        o.style.transition='opacity 0.6s ease';
+        o.style.opacity='0';
+        setTimeout(function(){ o.classList.remove('visible'); o.style.opacity=''; },600);
+      }
     };
     return;
   }
@@ -1882,7 +1890,10 @@ footer{
   // Safety fallback — force hide after 4s no matter what
   setTimeout(forceHide, 4000);
 
-  window._loaderGlobeReady=function(){ /* no-op — loader no longer waits for globe */ };
+  // Only set no-op if internal nav block hasn't already set a real handler
+  if(!window._loaderGlobeReady){
+    window._loaderGlobeReady=function(){ /* no-op — loader no longer waits for globe */ };
+  }
 
   drawRing(0);
   animate();
@@ -3030,6 +3041,8 @@ function buildDots(ms){
     transparent:true,depthWrite:false,blending:THREE.NormalBlending
   });
   dotMesh=new THREE.Points(dotGeo,dotMat);scene.add(dotMesh);
+  // Signal globe is ready — hides loading overlay on internal navigation
+  if(window._loaderGlobeReady) window._loaderGlobeReady();
 }
 
 function updateDotColors(){
@@ -4895,9 +4908,10 @@ window.addEventListener('pageshow', function(e){
     }
   }
   window.addEventListener('load',function(){
-    if(location.pathname==='/livemap'){
+    if(location.pathname==='/livemap' || window._skipToLivemap){
       history.replaceState({page:'livemap'},'','/livemap');
-      setTimeout(function(){ if(typeof enterMap==='function') enterMap(); },150);
+      // Jump immediately — no delay, no home flash
+      if(typeof enterMap==='function') enterMap();
     } else {
       history.replaceState({page:'home'},'',location.pathname);
     }
