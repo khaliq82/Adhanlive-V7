@@ -3806,182 +3806,666 @@ function drawVP2Canvases(){
     var city = _vp2Cities[_vp2CityIdx];
     var tag = document.querySelector('#vp2-card-0 .vp2-card-tag');
     if(tag) tag.textContent = 'Prayer Times — ' + city.name;
-  }, 8000);
+  }, 25000);
 }
 
 // ── VP2 ROTATING CITIES ──────────────────────────────────────────────────────
 var _vp2Cities = [
-  { name:'New York',  country:'USA',       lat:40.7128, lon:-74.006,  tz:-4, method:{fajr:-15, isha:{angle:-15}, asr:1} },
-  { name:'Cairo',     country:'Egypt',     lat:30.0444, lon:31.2357,  tz:3,  method:{fajr:-19.5,isha:{angle:-17.5},asr:1} },
-  { name:'Jakarta',   country:'Indonesia', lat:-6.2088, lon:106.8456, tz:7,  method:{fajr:-20, isha:{angle:-18}, asr:1} },
+  { name:'New York',  country:'USA',       lat:40.7128, lon:-74.006,  tz:-4, method:{fajr:-15,   isha:{angle:-15},   asr:1} },
+  { name:'Cairo',     country:'Egypt',     lat:30.0444, lon:31.2357,  tz:3,  method:{fajr:-19.5, isha:{angle:-17.5}, asr:1} },
+  { name:'Jakarta',   country:'Indonesia', lat:-6.2088, lon:106.8456, tz:7,  method:{fajr:-20,   isha:{angle:-18},   asr:1} },
 ];
 var _vp2CityIdx = 0;
 var _vp2CityInterval = null;
 
 function _calcVP2Prayers(city){
-  var now = new Date();
-  var M = city.method;
-  // Julian day
-  var y=now.getUTCFullYear(), m=now.getUTCMonth()+1, d=now.getUTCDate();
+  var now=new Date();
+  var M=city.method;
+  var y=now.getUTCFullYear(),m=now.getUTCMonth()+1,d=now.getUTCDate();
   if(m<=2){y--;m+=12;}
-  var A=Math.floor(y/100), B=2-A+Math.floor(A/4);
+  var A=Math.floor(y/100),B=2-A+Math.floor(A/4);
   var jdn=Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5;
-  // Sun position
-  var D=jdn-2451545, g=Math.PI/180*(357.529+0.98560028*D);
-  var q=280.459+0.98564736*D;
+  var D=jdn-2451545,g=Math.PI/180*(357.529+0.98560028*D),q=280.459+0.98564736*D;
   var L=Math.PI/180*(q+1.915*Math.sin(g)+0.02*Math.sin(2*g));
   var e=Math.PI/180*(23.439-3.6e-7*D);
   var RA=180/Math.PI*Math.atan2(Math.cos(e)*Math.sin(L),Math.cos(L))/15;
   var dec=180/Math.PI*Math.asin(Math.sin(e)*Math.sin(L));
   var eqt=q/15-((RA%24)+24)%24;
   var noon=12-eqt+(city.tz-city.lon/15);
-  var lr=city.lat*Math.PI/180, dr=dec*Math.PI/180;
-  function ha(angle){
-    var c=(Math.sin(angle*Math.PI/180)-Math.sin(lr)*Math.sin(dr))/(Math.cos(lr)*Math.cos(dr));
-    return(c<-1||c>1)?NaN:180/Math.PI*Math.acos(c)/15;
-  }
-  var asrAngle=Math.atan(1/(M.asr+Math.tan(Math.abs((city.lat-dec)*Math.PI/180))))*180/Math.PI;
-  var fajr=noon-ha(M.fajr);
-  var dhuhr=noon+0.017;
-  var asr=noon+ha(asrAngle);
-  var maghrib=noon+ha(-0.833);
-  var isha=M.isha.mins?maghrib+M.isha.mins/60:noon+ha(M.isha.angle);
-  return [
-    {name:'FAJR',    h:((fajr   %24)+24)%24, color:'#4466ff'},
-    {name:'DHUHR',   h:((dhuhr  %24)+24)%24, color:'#ffcc00'},
-    {name:'ASR',     h:((asr    %24)+24)%24, color:'#e07a2f'},
-    {name:'MAGHRIB', h:((maghrib%24)+24)%24, color:'#d94f3d'},
-    {name:'ISHA',    h:((isha   %24)+24)%24, color:'#9b59c4'},
-  ];
+  var lr=city.lat*Math.PI/180,dr=dec*Math.PI/180;
+  function ha(angle){var c=(Math.sin(angle*Math.PI/180)-Math.sin(lr)*Math.sin(dr))/(Math.cos(lr)*Math.cos(dr));return(c<-1||c>1)?NaN:180/Math.PI*Math.acos(c)/15;}
+  var asrA=Math.atan(1/(M.asr+Math.tan(Math.abs((city.lat-dec)*Math.PI/180))))*180/Math.PI;
+  return{
+    fajr:   ((noon-ha(M.fajr)          )%24+24)%24,
+    sunrise:((noon-ha(-0.833)+0.2       )%24+24)%24,
+    dhuhr:  ((noon+0.017                )%24+24)%24,
+    asr:    ((noon+ha(asrA)             )%24+24)%24,
+    maghrib:((noon+ha(-0.833)           )%24+24)%24,
+    isha:   ((M.isha.mins ? noon+ha(-0.833)+M.isha.mins/60 : noon+ha(M.isha.angle))%24+24)%24,
+  };
 }
 
-function drawPTClock(){
-  var cv=document.getElementById('pt-clock-canvas');
-  if(!cv) return;
-  var sz=Math.min(cv.parentElement.offsetWidth,cv.parentElement.offsetHeight)*0.82;
-  if(sz<80) sz=380;
-  var dpr=window.devicePixelRatio||1;
-  cv.width=Math.round(sz*dpr);cv.height=Math.round(sz*dpr);
-  cv.style.width=sz+'px';cv.style.height=sz+'px';
-  var ctx=cv.getContext('2d'),cx=sz/2,cy=sz/2,R=sz*0.44;
-  ctx.scale(dpr,dpr);
+function drawVP2Arc(vp2Times, vp2City, vp2LocalH){
+  // ── Local helpers (no dependency on city page globals) ──────────────────
+  const _VP2PMETA={
+    fajr:   {en:'Fajr',   color:'#4466ff'},
+    dhuhr:  {en:'Dhuhr',  color:'#ffcc00'},
+    asr:    {en:'Asr',    color:'#e07a2f'},
+    maghrib:{en:'Maghrib',color:'#d94f3d'},
+    isha:   {en:'Isha',   color:'#9b59c4'},
+  };
+  const _VP2ORDER=['fajr','dhuhr','asr','maghrib','isha'];
+  function _vp2h2t(h){const tot=((h%24)+24)%24,hh=Math.floor(tot),mm=Math.round((tot-hh)*60)%60;return{h12:hh%12||12,mm:String(mm).padStart(2,'0'),ampm:hh>=12?'PM':'AM'};}
+  function _vp2next(t,lh){for(const p of _VP2ORDER){if(isNaN(t[p]))continue;const h=((t[p]%24)+24)%24;if(h>lh)return{name:p,time:h};}return{name:'fajr',time:((t.fajr%24)+24)%24+24};}
+  function _vp2prev(t,lh){let best=null;for(const p of _VP2ORDER){if(isNaN(t[p]))continue;const h=((t[p]%24)+24)%24;if(h<=lh&&(!best||h>best.time))best={name:p,time:h};}if(best)return best;let last=null;for(const p of _VP2ORDER){if(isNaN(t[p]))continue;const h=((t[p]%24)+24)%24;if(!last||h>last.time)last={name:p,time:h};}return last?{name:last.name,time:last.time-24}:{name:'fajr',time:((t.fajr%24)+24)%24-24};}
 
-  var city = _vp2Cities[_vp2CityIdx];
-  var prayers = _calcVP2Prayers(city);
+  const canvas=document.getElementById('pt-clock-canvas');
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const wrap=canvas.parentElement;
+  const size=Math.round(wrap.getBoundingClientRect().width)||wrap.offsetWidth||400;
+  if(size<10)return;
+  if(canvas._lastSize!==size||canvas._lastDpr!==dpr){
+    canvas.width=Math.round(size*dpr);canvas.height=Math.round(size*dpr);
+    canvas.style.width=size+'px';canvas.style.height=size+'px';
+    canvas._lastSize=size;canvas._lastDpr=dpr;
+  }
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,size,size);
+  if(!vp2Times)return;
+  const cx=size/2,cy=size/2;
+  const _mobR=false; // VP2 always uses desktop sizing
+  const R=size*(_mobR?0.38:0.34);
+  const RI=R+size*(_mobR?0.010:0.015);   // very tight band
+  const RO=R+size*(_mobR?0.048:0.048);   // narrowed on mobile   // wider on mobile so names fit
+  const bandMid=(RI+RO)/2;
+  // Single time snapshot — one cityNow() per frame prevents split-second drift
+  const _frameNow=new Date(Date.now()+vp2City.tz*3600000);
+  const lh=vp2LocalH;
+  // ── Countdown display + progress bar ──
+  // Use Date.now() milliseconds for the countdown to avoid floating-point
+  // precision errors from fractional-hour arithmetic (floor drift / skip).
+  {
+    const _np=_vp2next(vp2Times,lh);
+    // Use the frame snapshot — same Date object used for lh above.
+    const _npTotalSec=Math.round((((_np.time%24)+24)%24)*3600);
+    const _nowTotalSec=_frameNow.getUTCHours()*3600+_frameNow.getUTCMinutes()*60+_frameNow.getUTCSeconds();
+    let _ts=_npTotalSec-_nowTotalSec;
+    if(_ts<0) _ts+=86400;
+    const _hh=Math.floor(_ts/3600),_mm=Math.floor((_ts%3600)/60),_ss=_ts%60;
+    const _cdEl=document.getElementById('next-countdown');
+    if(_cdEl) _cdEl.textContent=String(_hh).padStart(2,'0')+':'+String(_mm).padStart(2,'0')+':'+String(_ss).padStart(2,'0');
+    // Progress bar
+    const _pf=document.getElementById('np-progress-fill');
+    const _knob=document.getElementById('np-progress-knob');
+    if(_pf){
+      const _pp=_vp2prev(vp2Times,lh);
+      const _f=Math.max(0,Math.min(1,(lh-_pp.time)/(_np.time-_pp.time)));
+      const _pct=(_f*100).toFixed(3)+'%';
+      _pf.style.width=_pct;
+      if(_knob) _knob.style.left=_pct;
+    }
+  }
+  function hexRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+  function angle(h){return(h/24)*Math.PI*2-Math.PI/2;}
 
-  // Current local time for this city
-  var now=new Date();
-  var utcH=now.getUTCHours()+now.getUTCMinutes()/60+now.getUTCSeconds()/3600;
-  var nowH=((utcH+city.tz)%24+24)%24;
-  var hh=Math.floor(nowH), mm=Math.floor((nowH-hh)*60), ss=Math.floor(((nowH-hh)*60-mm)*60);
-  var ap=hh<12?'AM':'PM', disp=((hh%12)||12);
+  // Background — fade to transparent early so the panel's ambient glow
+  // shows through right up to the dial edge, with no dark disc creating a ring
+  const base=ctx.createRadialGradient(cx,cy,0,cx,cy,size*0.5);
+  base.addColorStop(0,'rgba(2,3,6,0.96)');base.addColorStop(0.55,'rgba(2,3,6,0.94)');
+  base.addColorStop(0.75,'rgba(2,3,6,0.70)');base.addColorStop(0.88,'rgba(2,3,6,0.25)');base.addColorStop(1,'rgba(2,3,6,0)');
+  ctx.fillStyle=base;ctx.beginPath();ctx.arc(cx,cy,size*0.5,0,Math.PI*2);ctx.fill();
 
-  // Background
-  ctx.beginPath();ctx.arc(cx,cy,R*1.04,0,Math.PI*2);
-  var bg=ctx.createRadialGradient(cx,cy*0.7,0,cx,cy,R*1.04);
-  bg.addColorStop(0,'#141820');bg.addColorStop(1,'#07090d');
-  ctx.fillStyle=bg;ctx.fill();
+  // Islamic pattern
+  ctx.save();ctx.translate(cx,cy);
+  ctx.beginPath();ctx.arc(0,0,R+2,0,Math.PI*2);ctx.clip();
+  function drawStar(radius,points,innerRatio,color,lineW){
+    ctx.strokeStyle=color;ctx.lineWidth=lineW;ctx.beginPath();
+    for(let i=0;i<points*2;i++){const r=i%2===0?radius:radius*innerRatio,a=(i/points)*Math.PI-Math.PI/2;i===0?ctx.moveTo(r*Math.cos(a),r*Math.sin(a)):ctx.lineTo(r*Math.cos(a),r*Math.sin(a));}
+    ctx.closePath();ctx.stroke();
+  }
+  drawStar(R*0.95,8,0.72,'rgba(212,170,80,0.28)',0.9);drawStar(R*0.95,8,0.72,'rgba(212,170,80,0.10)',3.0);
+  drawStar(R*0.70,8,0.76,'rgba(212,170,80,0.22)',0.8);drawStar(R*0.48,8,0.74,'rgba(212,170,80,0.18)',0.7);
+  drawStar(R*0.26,8,0.70,'rgba(212,170,80,0.16)',0.6);
+  for(let i=0;i<24;i++){const a=(i/24)*Math.PI*2,iM=i%3===0;ctx.strokeStyle=iM?'rgba(212,170,80,0.12)':'rgba(212,170,80,0.05)';ctx.lineWidth=iM?0.5:0.25;ctx.beginPath();ctx.moveTo(R*0.06*Math.cos(a),R*0.06*Math.sin(a));ctx.lineTo(R*0.98*Math.cos(a),R*0.98*Math.sin(a));ctx.stroke();}
+  [0.22,0.40,0.58,0.76,0.92].forEach((r,i)=>{ctx.strokeStyle=i%2===0?'rgba(212,170,80,0.12)':'rgba(180,140,60,0.05)';ctx.lineWidth=i%2===0?0.5:0.3;ctx.beginPath();ctx.arc(0,0,R*r,0,Math.PI*2);ctx.stroke();});
+  const iF=ctx.createRadialGradient(0,0,R*0.3,0,0,R);iF.addColorStop(0,'rgba(0,0,0,0)');iF.addColorStop(0.7,'rgba(0,0,0,0.15)');iF.addColorStop(1,'rgba(0,0,0,0.5)');
+  ctx.fillStyle=iF;ctx.beginPath();ctx.arc(0,0,R,0,Math.PI*2);ctx.fill();
+  ctx.restore();
 
-  // Outer rim
-  ctx.beginPath();ctx.arc(cx,cy,R*1.04,0,Math.PI*2);
-  var rim=ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
-  rim.addColorStop(0,'rgba(160,160,170,0.8)');
-  rim.addColorStop(0.5,'rgba(80,80,90,0.4)');
-  rim.addColorStop(1,'rgba(160,160,170,0.8)');
-  ctx.strokeStyle=rim;ctx.lineWidth=sz*0.022;ctx.stroke();
+  // Outer rim — cyan glowing ring
+  // Outer faint ring
+  ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,R+4,0,Math.PI*2);ctx.stroke();
 
-  // Hour marks
-  for(var h=0;h<24;h++){
-    var a=(h/24)*Math.PI*2-Math.PI/2;
-    var major=h%6===0, mid=h%3===0;
-    var len=major?R*0.12:mid?R*0.08:R*0.05;
+  // Outer text band — dark 3D metallic silver
+  const goldG=ctx.createLinearGradient(cx-RO,cy-RO,cx+RO,cy+RO);
+  goldG.addColorStop(0,'rgba(28,30,35,0.99)');
+  goldG.addColorStop(0.10,'rgba(75,80,88,1)');
+  goldG.addColorStop(0.20,'rgba(32,34,40,0.99)');
+  goldG.addColorStop(0.32,'rgba(95,102,112,1)');
+  goldG.addColorStop(0.42,'rgba(25,27,32,0.99)');
+  goldG.addColorStop(0.54,'rgba(80,86,95,1)');
+  goldG.addColorStop(0.65,'rgba(30,32,38,0.99)');
+  goldG.addColorStop(0.78,'rgba(70,75,84,1)');
+  goldG.addColorStop(0.90,'rgba(22,24,28,0.99)');
+  goldG.addColorStop(1,'rgba(55,58,65,0.98)');
+  ctx.save();ctx.beginPath();ctx.arc(cx,cy,RO,0,Math.PI*2);ctx.arc(cx,cy,RI,0,Math.PI*2,true);ctx.fillStyle=goldG;ctx.fill();
+  // Top edge — bright specular line
+  ctx.strokeStyle='rgba(200,210,225,0.85)';ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.arc(cx,cy,RO-0.5,0,Math.PI*2);ctx.stroke();
+  // Inner edge — dark shadow for depth
+  ctx.strokeStyle='rgba(30,32,36,0.8)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,RI+0.5,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+  ctx.strokeStyle='rgba(255,255,255,0.14)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,RI,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,0.10)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,RO,0,Math.PI*2);ctx.stroke();
+
+  // Night/day
+  const mH=((vp2Times.maghrib%24)+24)%24,fH=((vp2Times.fajr%24)+24)%24;
+  ctx.strokeStyle='rgba(60,40,140,0.2)';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,R,angle(mH),angle(fH+24));ctx.stroke();
+  ctx.strokeStyle='rgba(200,150,40,0.08)';ctx.lineWidth=4;ctx.beginPath();ctx.arc(cx,cy,R,angle(fH),angle(mH));ctx.stroke();
+
+  // Active prayer (used for needle edge highlight, no rim arc drawn)
+  const active=(function(t,lh){
+    if(lh>=t.fajr&&lh<(t.fajr+1.5))return"fajr";
+    if(lh>=t.dhuhr&&lh<t.asr)return"dhuhr";
+    if(lh>=t.asr&&lh<t.maghrib)return"asr";
+    if(lh>=t.maghrib&&lh<t.isha)return"maghrib";
+    if(lh>=t.isha||lh<t.fajr)return"isha";
+    return null;
+  })(vp2Times,lh);
+
+  // 24-hour numbers with tick lines — close to ring
+  ctx.save();
+  for(let h=0;h<24;h++){
+    const a=angle(h);
+    const isMaj=h%6===0, isHalf=h%3===0;
+    const tickOuter=R-3;
+    const tickLen=isMaj?10:isHalf?7:5;
+    const tickInner=tickOuter-tickLen;
+
+    // Tick line on ring
+    ctx.strokeStyle=isMaj?'rgba(255,255,255,0.30)':isHalf?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.08)';
+    ctx.lineWidth=isMaj?1.5:1;
     ctx.beginPath();
-    ctx.moveTo(cx+Math.cos(a)*(R-1),cy+Math.sin(a)*(R-1));
-    ctx.lineTo(cx+Math.cos(a)*(R-len),cy+Math.sin(a)*(R-len));
-    ctx.strokeStyle=major?'rgba(255,255,255,0.5)':mid?'rgba(255,255,255,0.25)':'rgba(255,255,255,0.08)';
-    ctx.lineWidth=major?1.5:0.8;ctx.stroke();
-    if(major){
+    ctx.moveTo(cx+tickOuter*Math.cos(a),cy+tickOuter*Math.sin(a));
+    ctx.lineTo(cx+tickInner*Math.cos(a),cy+tickInner*Math.sin(a));
+    ctx.stroke();
+
+    // Number just inside tick
+    const nr=tickInner-9;
+    const nx=cx+nr*Math.cos(a),ny=cy+nr*Math.sin(a);
+    ctx.save();ctx.translate(nx,ny);
+    ctx.rotate(Math.sin(a)>0?a-Math.PI/2:a+Math.PI/2);
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    const isKey=h%6===0;
+    ctx.font=`${isKey?'700':isMaj?'600':'500'} ${isKey?12:isMaj?10:9}px 'Geist',sans-serif`;
+    ctx.fillStyle=isKey?'rgba(235,230,220,0.80)':isMaj?'rgba(225,220,210,0.50)':'rgba(210,205,195,0.32)';
+    ctx.fillText(String(h).padStart(2,'0'),0,0);
+    ctx.restore();
+  }
+  ctx.restore();
+
+  // Hour ticks
+  for(let h=0;h<24;h++){
+    const a=angle(h),isQ=h%6===0,isH=h%3===0;if(!isH&&!isQ)continue;
+    const len=isQ?12:7,r1=R-len/2,r2=R+len/2;
+    ctx.strokeStyle='rgba(0,0,0,0.7)';ctx.lineWidth=isQ?2:1.5;ctx.beginPath();ctx.moveTo(cx+(r1+0.6)*Math.cos(a),cy+(r1+0.6)*Math.sin(a));ctx.lineTo(cx+(r2+0.6)*Math.cos(a),cy+(r2+0.6)*Math.sin(a));ctx.stroke();
+    ctx.strokeStyle=isQ?'rgba(255,255,255,0.3)':'rgba(255,255,255,0.12)';ctx.lineWidth=isQ?1.5:1;ctx.beginPath();ctx.moveTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));ctx.lineTo(cx+r2*Math.cos(a),cy+r2*Math.sin(a));ctx.stroke();
+  }
+
+  // City name + next prayer countdown — bottom center of dial (below pivot, clear of all needles)
+  {
+    ctx.save();
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    // City name
+    ctx.font=`700 ${Math.round(R*0.09)}px 'Playfair Display',serif`;
+    ctx.fillStyle='rgba(235,230,218,0.88)';
+    ctx.shadowColor='rgba(130,190,255,0.25)';
+    ctx.shadowBlur=3;
+    ctx.fillText(vp2City.name, cx, cy - R*(_mobR?0.68:0.72));
+    ctx.shadowBlur=0;
+    ctx.font=`400 ${Math.round(R*0.055)}px 'Geist',sans-serif`;
+    ctx.fillStyle='rgba(180,175,165,0.65)';
+    ctx.fillText(vp2City.country, cx, cy - R*(_mobR?0.56:0.60));
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
+
+  // ── Time pit — 3D recessed channel on the horizontal 06 axis ──
+  // Sits on the right-side horizontal axis, between pivot and the "06" rim mark.
+  {
+    const pitW=R*0.44, pitH=R*0.115;
+    // When Fajr >= 05:00 the capsule shifts to the 08:00 position on the dial,
+    // pulled inward toward the pivot so it clears the Fajr needle body.
+    // This applies to any city in the world where Fajr falls after 05:00.
+    const _fajrForPit=((vp2Times.fajr%24)+24)%24;
+    const _pitShift=_fajrForPit>=5;
+    const _pitAng=_pitShift?(8/24)*Math.PI*2-Math.PI/2:0;
+    const _pitR2=R*0.45;
+    const pitX=_pitShift?(cx+_pitR2*Math.cos(_pitAng)-pitW/2):(cx+R*0.30);
+    const pitY=_pitShift?(cy+_pitR2*Math.sin(_pitAng)-pitH/2):(cy-pitH/2);
+    const pitR=pitH*0.45; // corner radius
+
+
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.9)';
+    ctx.shadowBlur=pitH*1.1;
+    ctx.shadowOffsetY=pitH*0.5;
+    ctx.shadowOffsetX=pitH*0.08;
+    ctx.fillStyle='rgba(0,0,0,0)';
+    ctx.beginPath();
+    ctx.roundRect(pitX,pitY,pitW,pitH,pitR);
+    ctx.fill();
+    ctx.restore();
+
+    // 2. Pit floor — top-to-bottom depth gradient (lighter top = overhead light, darker bottom = depth)
+    const pitFloor=ctx.createLinearGradient(pitX,pitY,pitX,pitY+pitH);
+    pitFloor.addColorStop(0,'rgba(0,28,42,1)');
+    pitFloor.addColorStop(0.45,'rgba(0,20,32,1)');
+    pitFloor.addColorStop(1,'rgba(0,8,14,1)');
+    ctx.beginPath();
+    ctx.roundRect(pitX,pitY,pitW,pitH,pitR);
+    ctx.fillStyle=pitFloor;
+    ctx.fill();
+    // Cyan ambient from digit light source — centre radial
+    const pitAmbient=ctx.createRadialGradient(pitX+pitW/2,pitY+pitH*0.4,0,pitX+pitW/2,pitY+pitH/2,pitW*0.52);
+    pitAmbient.addColorStop(0,'rgba(0,212,255,0.13)');
+    pitAmbient.addColorStop(1,'rgba(0,212,255,0)');
+    ctx.beginPath();
+    ctx.roundRect(pitX,pitY,pitW,pitH,pitR);
+    ctx.fillStyle=pitAmbient;
+    ctx.fill();
+
+    // 3. Top-lip specular — bright white line where overhead light catches the machined edge
+    ctx.save();
+    ctx.shadowColor='rgba(255,255,255,0.5)';
+    ctx.shadowBlur=2;
+    const specGrad=ctx.createLinearGradient(pitX,pitY,pitX+pitW,pitY);
+    specGrad.addColorStop(0,'rgba(255,255,255,0)');
+    specGrad.addColorStop(0.15,'rgba(255,255,255,0.55)');
+    specGrad.addColorStop(0.5,'rgba(255,255,255,0.80)');
+    specGrad.addColorStop(0.85,'rgba(255,255,255,0.55)');
+    specGrad.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.roundRect(pitX+1,pitY+0.5,pitW-2,1,pitR*0.3);
+    ctx.fillStyle=specGrad;
+    ctx.fill();
+    ctx.restore();
+
+    // 4. Bottom shadow lip — dark line where the pit wall meets the floor (depth cue)
+    const botGrad=ctx.createLinearGradient(pitX,pitY+pitH-1,pitX+pitW,pitY+pitH-1);
+    botGrad.addColorStop(0,'rgba(0,0,0,0)');
+    botGrad.addColorStop(0.2,'rgba(0,0,0,0.6)');
+    botGrad.addColorStop(0.8,'rgba(0,0,0,0.6)');
+    botGrad.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.roundRect(pitX+1,pitY+pitH-2,pitW-2,2,pitR*0.2);
+    ctx.fillStyle=botGrad;
+    ctx.fill();
+
+    // 5. Outer border — metallic silver, matches clock rim language
+    ctx.save();
+    const pitBorderG=ctx.createLinearGradient(pitX,pitY,pitX+pitW,pitY+pitH);
+    pitBorderG.addColorStop(0,'rgba(180,185,195,0.75)');
+    pitBorderG.addColorStop(0.25,'rgba(110,118,128,0.55)');
+    pitBorderG.addColorStop(0.5,'rgba(200,208,218,0.85)');
+    pitBorderG.addColorStop(0.75,'rgba(100,108,118,0.50)');
+    pitBorderG.addColorStop(1,'rgba(160,168,178,0.70)');
+    ctx.beginPath();
+    ctx.roundRect(pitX,pitY,pitW,pitH,pitR);
+    ctx.strokeStyle=pitBorderG;
+    ctx.lineWidth=1.2;
+    ctx.stroke();
+    // Inner inset line — adds depth to the border
+    ctx.beginPath();
+    ctx.roundRect(pitX+1.5,pitY+1.5,pitW-3,pitH-3,Math.max(pitR-1.5,0));
+    ctx.strokeStyle='rgba(255,255,255,0.08)';
+    ctx.lineWidth=0.5;
+    ctx.stroke();
+    ctx.restore();
+
+    // 5. Time text — monospace, cyan glow, set into the pit
+    // 24-hour time HH:MM:SS — use frame snapshot, not a fresh cityNow()
+    const nowD=_frameNow;
+    const ph=lh%24;
+    const phh=String(Math.floor(ph)).padStart(2,'0');
+    const pmm=String(Math.floor(nowD.getMinutes())).padStart(2,'0');
+    const pss=String(nowD.getSeconds()).padStart(2,'0');
+    const timeStr=phh+':'+pmm+':'+pss;
+    const pitCY=pitY+pitH*(_mobR?0.52:0.57);
+    const pitCX=pitX+pitW/2;
+
+    // Subtle digit glow
+    ctx.save();
+    ctx.shadowColor='rgba(0,212,255,0.5)';
+    ctx.shadowBlur=pitH*0.7;
+    ctx.fillStyle='rgba(0,212,255,0.08)';
+    ctx.beginPath();
+    ctx.roundRect(pitX+pitW*0.05,pitY+pitH*0.1,pitW*0.9,pitH*0.8,pitR*0.5);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.textBaseline='middle';
+    const fsz=Math.round(pitH*0.66);
+    ctx.font='700 '+fsz+'px Geist,sans-serif';
+    const charW=ctx.measureText('0').width;
+    const colonW=ctx.measureText(':').width*0.9;
+    const fixedW=charW*6+colonW*2;
+    let cx0=pitCX-fixedW/2;
+    ctx.shadowColor='rgba(0,212,255,0.65)';
+    ctx.shadowBlur=pitH*0.5;
+    ctx.fillStyle='rgba(0,212,255,0.95)';
+    ctx.textAlign='left';
+    for(let i=0;i<timeStr.length;i++){
+      const ch=timeStr[i];
+      const chW=ch===':'?colonW:charW;
+      const off=(chW-ctx.measureText(ch).width)/2;
+      ctx.fillText(ch,cx0+off,pitCY);
+      cx0+=chW;
+    }
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
+
+
+  // ── Prayer track ring — metallic golden circle at radius R ──
+  // Base stroke — dark gold
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI*2);
+  ctx.strokeStyle='rgba(180,140,50,0.55)';
+  ctx.lineWidth=1.2;
+  ctx.stroke();
+  ctx.restore();
+  // Highlight stroke — brighter gold, slightly inset
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R-0.5, 0, Math.PI*2);
+  ctx.strokeStyle='rgba(255,210,90,0.30)';
+  ctx.lineWidth=0.6;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Now-dot + animated flowing dashes to next prayer ──
+  // Drawn BEFORE needles — prayer bulbs render on top as time sweeps past.
+  {
+    const _np2=_vp2next(vp2Times,lh);
+    const _npCol=_VP2PMETA[_np2.name]?.color||"#00d4ff";
+    const _nowA=angle(lh);
+    const _npA=angle((((_np2.time%24)+24)%24));
+    const _dotR=R; // same circle as prayer needle tip bulbs
+
+    // ── Flowing dashes — slow march clockwise toward next prayer ──
+    const _t=Date.now();
+    const _dash=6;
+    const _gap=10;
+    const _period=_dash+_gap;
+    const _off=(_t/55)%_period;  // 55ms per px — slow, deliberate flow
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx,cy,_dotR,_nowA,_npA,false);
+    ctx.strokeStyle='#00d4ff';
+    ctx.globalAlpha=0.50;
+    ctx.lineWidth=2.2;
+    ctx.lineCap='round';
+    ctx.setLineDash([_dash,_gap]);
+    ctx.lineDashOffset=-_off;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+    // ── Pulsating now-dot — matches AdhanLive logo pulse ──
+    // One expanding ring, ease-out, short travel, fades to 0. 2.4s cycle.
+    const _dotX=cx+_dotR*Math.cos(_nowA);
+    const _dotY=cy+_dotR*Math.sin(_nowA);
+    const _coreR=4; // slightly more presence at dial scale, still subtle
+
+    // Ring: t goes 0→1 over 2.4s, ease-out via 1-(1-t)^2
+    const _ringT=((_t%2400)/2400);              // 0→1 linear
+    const _ringE=1-Math.pow(1-_ringT,2);        // ease-out
+    const _ringR=_coreR+(7*_ringE);             // expands coreR → coreR+7, visible at dial scale
+    const _ringA=1-_ringE;                       // opacity 1→0
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(_dotX,_dotY,_ringR,0,Math.PI*2);
+    ctx.strokeStyle='rgba(0,212,255,'+_ringA+')';
+    ctx.lineWidth=1;
+    ctx.stroke();
+    ctx.restore();
+
+    // Core dot — solid cyan, always visible
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(_dotX,_dotY,_coreR,0,Math.PI*2);
+    ctx.fillStyle='#00d4ff';
+    ctx.shadowColor='rgba(0,212,255,0.9)';
+    ctx.shadowBlur=6;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Needles — fixed z-order (bottom to top): Isha, Maghrib, Asr, Dhuhr, Fajr, current time
+  // Each needle casts a subtle shadow onto the one below it (3D stack effect)
+  const ZORDER=['isha','maghrib','asr','dhuhr','fajr'];
+  // Shadow offsets per layer — deeper layers cast softer shadows
+  const SHADOWS=[
+    {blur:8,ox:2,oy:3,alpha:0.35},  // isha (bottom)
+    {blur:7,ox:2,oy:3,alpha:0.32},  // maghrib
+    {blur:7,ox:2,oy:2,alpha:0.30},  // asr
+    {blur:6,ox:1,oy:2,alpha:0.28},  // dhuhr
+    {blur:6,ox:1,oy:2,alpha:0.26},  // fajr
+  ];
+  for(let zi=0;zi<ZORDER.length;zi++){
+    const p=ZORDER[zi];
+    if(isNaN(vp2Times[p]))continue;
+    const ph=((vp2Times[p]%24)+24)%24,a=angle(ph),col=_VP2PMETA[p].color,isA=p===active;
+    const dotX=cx+R*Math.cos(a),dotY=cy+R*Math.sin(a);
+    const tv=_vp2h2t(vp2Times[p]);
+    const sh=SHADOWS[zi];
+    // Draw shadow pass first (dark silhouette offset)
+    ctx.save();
+    ctx.globalAlpha=sh.alpha;
+    ctx.filter=`blur(${sh.blur}px)`;
+    ctx.fillStyle='rgba(0,0,0,0.7)';
+    const cos2=Math.cos(a),sin2=Math.sin(a),py2=cos2,px2=-sin2;
+    const bW=R*0.11,bs=R*0.04,be=R*0.72,te=R-5,tN=te-R*0.09;
+    ctx.beginPath();
+    ctx.moveTo(cx-px2*bs+cos2*(-sh.ox)+sh.ox+sin2*sh.oy,cy-py2*bs+sin2*(-sh.oy)+sh.oy-cos2*sh.oy);
+    // simplified shadow: just offset the whole needle path
+    ctx.save();
+    ctx.translate(sh.ox,sh.oy);
+    ctx.beginPath();
+    ctx.moveTo(cx-px2*bs,cy-py2*bs);
+    ctx.lineTo(cx-px2*bW+cos2*bs,cy-py2*bW+sin2*bs);
+    ctx.bezierCurveTo(cx-px2*bW+cos2*be,cy-py2*bW+sin2*be,cx-px2*2+cos2*tN,cy-py2*2+sin2*tN,cx+cos2*te,cy+sin2*te);
+    ctx.lineTo(cx+px2*2+cos2*tN,cy+py2*2+sin2*tN);
+    ctx.bezierCurveTo(cx+px2*bW+cos2*be,cy+py2*bW+sin2*be,cx+px2*bW+cos2*bs,cy+py2*bW+sin2*bs,cx+px2*bs,cy+py2*bs);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    ctx.restore();
+    // Draw actual needle
+    ctx.save();
+    ctx.shadowColor='rgba(0,0,0,0.55)';
+    ctx.shadowBlur=sh.blur;
+    ctx.shadowOffsetX=sh.ox;
+    ctx.shadowOffsetY=sh.oy;
+    // 24h time on needle — no AM/PM, slightly larger
+    const _nh=Math.floor(((vp2Times[p]%24)+24)%24);
+    const _nm=tv.mm;
+    const _nTimeStr=String(_nh).padStart(2,'0')+':'+_nm;
+    drawPrayerNeedle(ctx,cx,cy,a,R-5,col,isA,_nTimeStr,p);
+    ctx.restore();
+    // Dot — only active prayer glows, others are dark/off
+    if(isA){
+      // Active — lit bulb with glow
+      ctx.fillStyle='rgba(0,0,0,0.4)';ctx.beginPath();ctx.arc(dotX+0.5,dotY+0.5,5,0,Math.PI*2);ctx.fill();
+      const dg=ctx.createRadialGradient(dotX,dotY,0,dotX,dotY,13);dg.addColorStop(0,hexRgba(col,0.4));dg.addColorStop(1,hexRgba(col,0));
+      ctx.fillStyle=dg;ctx.beginPath();ctx.arc(dotX,dotY,13,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=10;ctx.beginPath();ctx.arc(dotX,dotY,5,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      const spec=ctx.createRadialGradient(dotX-1.5,dotY-1.5,0,dotX,dotY,5);spec.addColorStop(0,'rgba(255,255,255,0.8)');spec.addColorStop(0.4,'rgba(255,255,255,0.2)');spec.addColorStop(1,'rgba(255,255,255,0)');
+      ctx.fillStyle=spec;ctx.beginPath();ctx.arc(dotX,dotY,5,0,Math.PI*2);ctx.fill();
+    } else {
+      // Inactive — fully solid prayer color, no glow. Illuminates only when active.
+      ctx.fillStyle=col;ctx.globalAlpha=1;ctx.beginPath();ctx.arc(dotX,dotY,4,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;ctx.strokeStyle=hexRgba(col,0.85);ctx.lineWidth=0.8;ctx.beginPath();ctx.arc(dotX,dotY,4,0,Math.PI*2);ctx.stroke();
+    }
+  }
+
+
+
+  // ── Seconds hand — quartz tick, one revolution per minute ──
+  // Gives the dial a live heartbeat. Drawn before the pivot so the
+  // pivot crown covers its base like a real watch.
+  {
+    const secs=_frameNow.getSeconds();
+    const sa=(secs/60)*Math.PI*2-Math.PI/2;
+    const scos=Math.cos(sa),ssin=Math.sin(sa);
+    const sTipX=cx+scos*(R-10),sTipY=cy+ssin*(R-10);
+    const sTailX=cx-scos*24,sTailY=cy-ssin*24;
+    ctx.save();
+    // Soft shadow under the hand
+    ctx.strokeStyle='rgba(0,0,0,0.5)';
+    ctx.lineWidth=2.2;ctx.lineCap='round';
+    ctx.beginPath();ctx.moveTo(sTailX+1.5,sTailY+2);ctx.lineTo(sTipX+1.5,sTipY+2);ctx.stroke();
+    // The hand: thin cyan with subtle glow
+    ctx.strokeStyle='rgba(0,212,255,0.92)';
+    ctx.lineWidth=1.4;
+    ctx.shadowColor='rgba(0,212,255,0.45)';ctx.shadowBlur=5;
+    ctx.beginPath();ctx.moveTo(sTailX,sTailY);ctx.lineTo(sTipX,sTipY);ctx.stroke();
+    ctx.shadowBlur=0;
+    // Counterweight ring on the tail
+    ctx.fillStyle='rgba(0,212,255,0.9)';
+    ctx.beginPath();ctx.arc(sTailX,sTailY,3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(6,8,18,1)';
+    ctx.beginPath();ctx.arc(sTailX,sTailY,1.4,0,Math.PI*2);ctx.fill();
+    // Tip dot
+    ctx.fillStyle='rgba(0,212,255,1)';
+    ctx.shadowColor='rgba(0,212,255,0.6)';ctx.shadowBlur=7;
+    ctx.beginPath();ctx.arc(sTipX,sTipY,1.8,0,Math.PI*2);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.lineCap='butt';
+    ctx.restore();
+  }
+
+  // ── Premium screw pivot — Rolex-style crown ──
+  const pr=_mobR?8:13; // outer radius — smaller on mobile
+  ctx.save();
+
+  // Outer drop shadow
+  ctx.shadowColor='rgba(0,0,0,0.8)';
+  ctx.shadowBlur=12; ctx.shadowOffsetX=2; ctx.shadowOffsetY=3;
+  ctx.fillStyle='#0a0c12';
+  ctx.beginPath(); ctx.arc(cx,cy,pr,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0;
+
+  // Outer rim — cyan glowing ring
+  // Dark base fill
+  ctx.fillStyle='rgba(0,8,18,0.95)';
+  ctx.beginPath(); ctx.arc(cx,cy,pr,0,Math.PI*2); ctx.fill();
+  // Cyan rim stroke — outer edge
+  ctx.strokeStyle='rgba(0,212,255,0.9)';
+  ctx.lineWidth=2;
+  ctx.shadowColor='rgba(0,212,255,0.8)';
+  ctx.shadowBlur=12;
+  ctx.beginPath(); ctx.arc(cx,cy,pr-1,0,Math.PI*2); ctx.stroke();
+  ctx.shadowBlur=0;
+  // Inner softer cyan ring
+  ctx.strokeStyle='rgba(0,180,220,0.25)';
+  ctx.lineWidth=4;
+  ctx.beginPath(); ctx.arc(cx,cy,pr-4,0,Math.PI*2); ctx.stroke();
+
+  // Inner recessed disc
+  const innerG=ctx.createRadialGradient(cx-2,cy-2,0,cx,cy,pr-3);
+  innerG.addColorStop(0,'#2a2e3a');
+  innerG.addColorStop(0.4,'#1a1e28');
+  innerG.addColorStop(0.8,'#12151e');
+  innerG.addColorStop(1,'#0a0c14');
+  ctx.fillStyle=innerG;
+  ctx.beginPath(); ctx.arc(cx,cy,pr-3,0,Math.PI*2); ctx.fill();
+
+  // Knurling lines around bezel edge (8 marks)
+  for(let i=0;i<16;i++){
+    const ka=i*Math.PI/8;
+    const r1=pr-1.5, r2=pr-0.3;
+    ctx.strokeStyle=i%2===0?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.4)';
+    ctx.lineWidth=0.8;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.cos(ka)*r1,cy+Math.sin(ka)*r1);
+    ctx.lineTo(cx+Math.cos(ka)*r2,cy+Math.sin(ka)*r2);
+    ctx.stroke();
+  }
+
+  // Central jewel — deep ruby/sapphire style
+  const jewR=4.5;
+  const jewG=ctx.createRadialGradient(cx-1.5,cy-1.5,0,cx,cy,jewR);
+  jewG.addColorStop(0,'rgba(0,212,255,0.9)');
+  jewG.addColorStop(0.3,'rgba(0,140,200,0.7)');
+  jewG.addColorStop(0.7,'rgba(0,60,120,0.9)');
+  jewG.addColorStop(1,'rgba(0,20,50,1)');
+  ctx.fillStyle=jewG;
+  ctx.shadowColor='rgba(0,212,255,0.6)'; ctx.shadowBlur=8;
+  ctx.beginPath(); ctx.arc(cx,cy,jewR,0,Math.PI*2); ctx.fill();
+  ctx.shadowBlur=0;
+
+  // Jewel specular highlight
+  const specG=ctx.createRadialGradient(cx-1.8,cy-1.8,0,cx,cy,jewR);
+  specG.addColorStop(0,'rgba(255,255,255,0.7)');
+  specG.addColorStop(0.4,'rgba(255,255,255,0.1)');
+  specG.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=specG;
+  ctx.beginPath(); ctx.arc(cx,cy,jewR,0,Math.PI*2); ctx.fill();
+
+  ctx.restore();
+
+  // ── Prayer names curved along outer band ──
+  for(const p of _VP2ORDER){
+    if(isNaN(vp2Times[p]))continue;
+    const ph=((vp2Times[p]%24)+24)%24,pA=angle(ph),col=_VP2PMETA[p].color,isA=p===active;
+    const label=_VP2PMETA[p].en.toUpperCase();
+    const fSize=isA?12:10;
+    ctx.font=`700 ${fSize}px 'Geist',sans-serif`;
+    ctx.fillStyle=isA?col:'rgba(220,225,232,0.90)';
+    ctx.textBaseline='middle';ctx.textAlign='center';
+    const r=bandMid;
+    const charW=fSize*0.68;
+    const charGap=fSize*0.14;
+    const step=(charW+charGap)/r;
+    const totalSpan=(label.length-1)*step;
+    const isBottom=Math.sin(pA)>0.05;
+    for(let i=0;i<label.length;i++){
+      let ca,rot;
+      if(isBottom){
+        // Bottom: sweep counter-clockwise so D lands on viewer left, R on right
+        // ca-π/2 rotation makes text face outward upright
+        ca=pA+totalSpan/2-i*step;
+        rot=ca-Math.PI/2;
+      } else {
+        // Top: sweep clockwise, ca+π/2 rotation
+        ca=pA-totalSpan/2+i*step;
+        rot=ca+Math.PI/2;
+      }
       ctx.save();
-      ctx.translate(cx+Math.cos(a)*(R-len-12),cy+Math.sin(a)*(R-len-12));
-      ctx.font='600 '+Math.round(sz*0.032)+'px Geist,sans-serif';
-      ctx.fillStyle='rgba(255,255,255,0.4)';
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(String(h).padStart(2,'0'),0,0);
+      ctx.translate(cx+r*Math.cos(ca),cy+r*Math.sin(ca));
+      ctx.rotate(rot);
+      ctx.fillText(label[i],0,0);
       ctx.restore();
     }
   }
 
-  // Prayer needles with real times
-  prayers.forEach(function(p){
-    var a=(p.h/24)*Math.PI*2-Math.PI/2;
-    var diff=Math.abs(((nowH-p.h)+24)%24);
-    var isActive=diff<1.5||diff>22.5;
-    var nLen=R*0.72;
-    ctx.save();
-    ctx.translate(cx,cy);ctx.rotate(a);
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.lineTo(-6,0);ctx.lineTo(-3,-nLen);ctx.lineTo(3,-nLen);ctx.lineTo(6,0);
-    ctx.closePath();
-    var ng=ctx.createLinearGradient(0,0,0,-nLen);
-    ng.addColorStop(0,'rgba(180,140,50,0.2)');
-    ng.addColorStop(0.4,'rgba(180,140,50,0.6)');
-    ng.addColorStop(1,p.color);
-    ctx.fillStyle=ng;
-    ctx.shadowColor=isActive?p.color:'transparent';
-    ctx.shadowBlur=isActive?16:0;
-    ctx.fill();
-    ctx.font='700 '+Math.round(sz*0.028)+'px Geist,sans-serif';
-    ctx.fillStyle=isActive?p.color:'rgba(255,255,255,0.45)';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.shadowBlur=0;
-    ctx.translate(0,-nLen*0.55);ctx.rotate(-a);
-    ctx.fillText(p.name,0,0);
-    ctx.restore();
-    ctx.beginPath();ctx.arc(cx+Math.cos(a)*R,cy+Math.sin(a)*R,4,0,Math.PI*2);
-    ctx.fillStyle=isActive?p.color:'rgba(255,255,255,0.15)';
-    if(isActive){ctx.shadowColor=p.color;ctx.shadowBlur=8;}
-    ctx.fill();ctx.shadowBlur=0;
-  });
+}
 
-  // Time display
-  ctx.save();
-  var pitW=R*0.42,pitH=R*0.11;
-  ctx.translate(cx+R*0.42,cy);
-  ctx.beginPath();
-  if(ctx.roundRect) ctx.roundRect(-pitW/2,-pitH/2,pitW,pitH,pitH/2);
-  else ctx.rect(-pitW/2,-pitH/2,pitW,pitH);
-  ctx.fillStyle='rgba(0,212,255,0.12)';
-  ctx.strokeStyle='rgba(0,212,255,0.5)';
-  ctx.lineWidth=1;ctx.fill();ctx.stroke();
-  ctx.font='700 '+Math.round(sz*0.048)+'px Geist,sans-serif';
-  ctx.fillStyle='#00d4ff';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(String(disp).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0')+' '+ap,0,0);
-  ctx.restore();
-
-  // Current time needle
-  var ca=(nowH/24)*Math.PI*2-Math.PI/2;
-  ctx.beginPath();ctx.moveTo(cx,cy);
-  ctx.lineTo(cx+Math.cos(ca)*R*0.88,cy+Math.sin(ca)*R*0.88);
-  ctx.strokeStyle='rgba(0,212,255,0.9)';ctx.lineWidth=1.5;
-  ctx.shadowColor='rgba(0,212,255,0.6)';ctx.shadowBlur=6;ctx.stroke();ctx.shadowBlur=0;
-
-  // Pivot
-  ctx.beginPath();ctx.arc(cx,cy,8,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,212,255,0.9)';ctx.fill();
-
-  // City name
-  ctx.font='700 '+Math.round(sz*0.048)+'px Playfair Display,serif';
-  ctx.fillStyle='rgba(235,230,218,0.88)';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(city.name,cx,cy-R*0.7);
-  ctx.font='400 '+Math.round(sz*0.03)+'px Geist,sans-serif';
-  ctx.fillStyle='rgba(180,175,165,0.5)';
-  ctx.fillText(city.country,cx,cy-R*0.58);
-
-  // Loop
+function drawPTClock(){
+  var city = _vp2Cities[_vp2CityIdx];
+  var times = _calcVP2Prayers(city);
+  var now = new Date(Date.now() + city.tz*3600000);
+  var lh = now.getUTCHours()+now.getUTCMinutes()/60+now.getUTCSeconds()/3600;
+  drawVP2Arc(times, city, lh);
   requestAnimationFrame(function(){
-    if(_vp2Active&&_vp2Card===0) drawPTClock();
+    if(_vp2Active && _vp2Card===0) drawPTClock();
   });
 }
 
