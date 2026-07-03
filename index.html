@@ -3171,10 +3171,37 @@ let _prayerCache = null; // {fajr, dhuhr, asr, maghrib, isha} per mosque index
 
 function precalcPrayerTimes(){
   if(!allMosques.length) return;
+  const today = new Date().toISOString().slice(0,10);
+
+  // Try to fetch pre-computed binary from server first
+  fetch('/prayers-today.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(meta => {
+      if(meta && meta.date === today && meta.mosques === allMosques.length){
+        // Server has today's data — fetch the binary
+        return fetch('/prayers-today.bin')
+          .then(r => r.ok ? r.arrayBuffer() : null)
+          .then(buf => {
+            if(!buf) throw new Error('Binary fetch failed');
+            _prayerCache = new Float32Array(buf);
+            console.log('Prayer times loaded from server cache:', allMosques.length, 'mosques');
+          });
+      } else {
+        throw new Error('Server cache miss — falling back to browser computation');
+      }
+    })
+    .catch(err => {
+      console.log(err.message || err);
+      // Fallback: compute in browser via Web Worker (original behaviour)
+      _precalcInBrowser();
+    });
+}
+
+function _precalcInBrowser(){
+  if(!allMosques.length) return;
   const date = new Date();
   const dateStr = date.toISOString();
 
-  // Build worker code as blob — runs completely off main thread
   const workerCode = `
 const METHODS={
   MWL:{fajr:-18,isha:{angle:-17},asr:1},ISNA:{fajr:-15,isha:{angle:-15},asr:1},
@@ -3223,23 +3250,20 @@ self.onmessage=function(e){
   const url = URL.createObjectURL(blob);
   const worker = new Worker(url);
 
-  // Send mosque data to worker — runs completely off main thread
   const mosqueData = allMosques.map(m=>({lat:m.lat,lon:m.lon,tz:m.tz,country:m.country}));
   worker.postMessage({mosques:mosqueData, dateStr});
 
   worker.onmessage = function(e){
     _prayerCache = new Float32Array(e.data.cache);
-    console.log('Prayer times pre-calculated for', allMosques.length, 'mosques');
+    console.log('Prayer times computed in browser:', allMosques.length, 'mosques');
     URL.revokeObjectURL(url);
     worker.terminate();
-    // Recalculate stats now that cache is ready — this will signal the loader
   };
 
   worker.onerror = function(err){
     console.warn('Worker failed, falling back to chunked:', err);
     URL.revokeObjectURL(url);
     worker.terminate();
-    // Fallback to chunked setTimeout if worker fails
     _precalcChunked(date);
   };
 }
