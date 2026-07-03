@@ -1,1 +1,34 @@
+name: Generate Daily Prayer Times
 
+on:
+  schedule:
+    # Run at 00:05 UTC every day (just after midnight)
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub UI
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit the generated file
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate prayers-today.bin
+        run: node scripts/generate-prayers.js
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add prayers-today.bin prayers-today.json
+          git diff --staged --quiet || git commit -m "chore: update prayers-today.bin for $(date -u +%Y-%m-%d)"
+          git push
