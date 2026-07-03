@@ -3055,8 +3055,6 @@ function buildDots(ms){
     transparent:true,depthWrite:false,blending:THREE.NormalBlending
   });
   dotMesh=new THREE.Points(dotGeo,dotMat);scene.add(dotMesh);
-  // Signal globe is ready — hides loading overlay on internal navigation
-  if(window._loaderGlobeReady) window._loaderGlobeReady();
 }
 
 function updateDotColors(){
@@ -4241,6 +4239,8 @@ async function main(){
     if(mm)mm.textContent=allMosques.length.toLocaleString();
     await yieldToBrowser();
   }
+  // All mosque data loaded — signal globe overlay to evaporate
+  if(window._loaderGlobeReady) window._loaderGlobeReady();
   setInterval(tick,10000);
   // Rebuild mobile globe dots now that full dataset is loaded
   if(window._buildMDots) window._buildMDots();
