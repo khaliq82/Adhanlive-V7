@@ -4239,8 +4239,13 @@ async function main(){
     if(mm)mm.textContent=allMosques.length.toLocaleString();
     await yieldToBrowser();
   }
-  // All mosque data loaded — signal globe overlay to evaporate
-  if(window._loaderGlobeReady) window._loaderGlobeReady();
+  // All mosque data loaded — wait for next render frame so dots are visually
+  // painted on the globe before evaporating the loading overlay
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      if(window._loaderGlobeReady) window._loaderGlobeReady();
+    });
+  });
   setInterval(tick,10000);
   // Rebuild mobile globe dots now that full dataset is loaded
   if(window._buildMDots) window._buildMDots();
