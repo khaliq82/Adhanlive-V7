@@ -3185,6 +3185,7 @@ function precalcPrayerTimes(){
             if(!buf) throw new Error('Binary fetch failed');
             _prayerCache = new Float32Array(buf);
             console.log('Prayer times loaded from server cache:', allMosques.length, 'mosques');
+            calcAdhanStats();
           });
       } else {
         throw new Error('Server cache miss — falling back to browser computation');
@@ -3256,6 +3257,7 @@ self.onmessage=function(e){
   worker.onmessage = function(e){
     _prayerCache = new Float32Array(e.data.cache);
     console.log('Prayer times computed in browser:', allMosques.length, 'mosques');
+    calcAdhanStats();
     URL.revokeObjectURL(url);
     worker.terminate();
   };
@@ -4274,9 +4276,8 @@ async function main(){
   // Rebuild mobile globe dots now that full dataset is loaded
   if(window._buildMDots) window._buildMDots();
   // Pre-calculate all prayer times (runs once, used all day)
+  // calcAdhanStats() is called directly inside precalcPrayerTimes() once cache is ready
   precalcPrayerTimes();
-  // Now that prayer times are ready, calculate adhan stats for live map right panel
-  setTimeout(calcAdhanStats, 500);
   setInterval(calcAdhanStats, 60000);
   // Refresh pre-calculation at midnight
   const msToMidnight=(86400-(new Date().getUTCHours()*3600+new Date().getUTCMinutes()*60+new Date().getUTCSeconds()))*1000;
