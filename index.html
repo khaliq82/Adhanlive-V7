@@ -2470,6 +2470,14 @@ let flatImg = null, flatLoaded = false;
 
 
 function enterMap(){
+  // If VP2 is active, close it first then enter map
+  if(_vp2Active){
+    _vp2Active=false;
+    if(_vp2CityInterval){ clearInterval(_vp2CityInterval); _vp2CityInterval=null; }
+    _vp2CityIdx=0;
+    document.getElementById('viewport-2').classList.remove('active');
+    // Don't restore home-overlay — going to live map directly
+  }
   if(mapMode) return;
   mapMode = true;
 
