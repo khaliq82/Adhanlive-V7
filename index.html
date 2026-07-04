@@ -22,11 +22,11 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>AdhanLive: The Live Global Map of Islamic Prayer</title>
+<title>AdhanLive: Live Islamic Prayer Map, Prayer Times and Qibla Finder</title>
 
 <!-- SEO -->
-<meta name="description" content="Watch the Adhan sweep across 280,621 mosques in real time. A live 3D visualization of the Islamic call to prayer that never stops.">
-<meta name="keywords" content="adhan live, islamic call to prayer, live mosque map, adhan visualization, prayer times world map, fajr dhuhr asr maghrib isha, muslim prayer globe, adhan wave earth">
+<meta name="description" content="A live 3D globe showing the Adhan sweeping across 280,621 mosques in real time. Find accurate prayer times for any city and your Qibla direction from anywhere on Earth.">
+<meta name="keywords" content="adhan live, islamic call to prayer, live mosque map, prayer times, qibla finder, qibla direction, fajr dhuhr asr maghrib isha, muslim prayer globe, adhan wave earth, prayer times london, prayer times new york, prayer times dubai">
 <meta name="author" content="AdhanLive">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.adhanlive.com/">
@@ -34,8 +34,8 @@
 <!-- Open Graph (WhatsApp, Facebook, iMessage, LinkedIn) -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.adhanlive.com/">
-<meta property="og:title" content="AdhanLive: The Live Global Map of Islamic Prayer">
-<meta property="og:description" content="Watch the Adhan sweep across 280,621 mosques in real time. A live 3D visualization of the Islamic call to prayer that never stops.">
+<meta property="og:title" content="AdhanLive: Live Islamic Prayer Map, Prayer Times and Qibla Finder">
+<meta property="og:description" content="A live 3D globe showing the Adhan sweeping across 280,621 mosques in real time. Find accurate prayer times for any city and your Qibla direction from anywhere on Earth.">
 <meta property="og:image" content="https://www.adhanlive.com/preview.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -46,25 +46,46 @@
 <!-- Twitter / X Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://www.adhanlive.com/">
-<meta name="twitter:title" content="AdhanLive: The Live Global Map of Islamic Prayer">
-<meta name="twitter:description" content="Watch the Adhan sweep across 280,621 mosques in real time. A live 3D visualization of the Islamic call to prayer that never stops.">
+<meta name="twitter:title" content="AdhanLive: Live Islamic Prayer Map, Prayer Times and Qibla Finder">
+<meta name="twitter:description" content="A live 3D globe showing the Adhan sweeping across 280,621 mosques in real time. Find accurate prayer times for any city and your Qibla direction from anywhere on Earth.">
 <meta name="twitter:image" content="https://www.adhanlive.com/preview.jpg">
 
 <!-- Structured Data (JSON-LD) -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "WebSite",
   "name": "AdhanLive",
   "url": "https://www.adhanlive.com",
-  "description": "A live real-time 3D visualization of the Islamic call to prayer (Adhan) sweeping across Earth. Tracks 280,621 mosques worldwide showing Fajr, Dhuhr, Asr, Maghrib and Isha prayer times as they happen.",
-  "applicationCategory": "ReligiousApplication",
-  "operatingSystem": "Any",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
+  "description": "A live 3D globe showing the Adhan sweeping across 280,621 mosques in real time. Find accurate prayer times for any city and your Qibla direction from anywhere on Earth.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://www.adhanlive.com/prayer-times?q={search_term_string}",
+    "query-input": "required name=search_term_string"
   },
+  "hasPart": [
+    {
+      "@type": "WebApplication",
+      "name": "Live Adhan Map",
+      "url": "https://www.adhanlive.com/livemap",
+      "description": "Real-time 3D globe tracking the Adhan across 280,621 mosques worldwide.",
+      "applicationCategory": "ReligiousApplication"
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Prayer Times",
+      "url": "https://www.adhanlive.com/prayer-times",
+      "description": "Accurate Fajr, Dhuhr, Asr, Maghrib and Isha prayer times for any city on Earth with a live 24-hour clock.",
+      "applicationCategory": "ReligiousApplication"
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Qibla Finder",
+      "url": "https://www.adhanlive.com/qibla",
+      "description": "Live compass showing the Qibla direction from anywhere in the world.",
+      "applicationCategory": "ReligiousApplication"
+    }
+  ],
   "author": {
     "@type": "Organization",
     "name": "AdhanLive",
@@ -3826,7 +3847,7 @@ function drawVP2Canvases(){
     // Update card description text
     var city = _vp2Cities[_vp2CityIdx];
     var tag = document.querySelector('#vp2-card-0 .vp2-card-tag');
-    if(tag) tag.textContent = 'Prayer Times — ' + city.name;
+    if(tag) tag.textContent = 'Prayer Times: ' + city.name;
   }, 25000);
 }
 
