@@ -1708,7 +1708,35 @@ footer{
 
 
 /* Missing mosque strip */
-.missing-mosque-strip{
+/* ── Discovery Cards (Prayer Times + Qibla) ── */
+.discovery-cards{display:flex;gap:8px;padding:0 0 4px;}
+.discovery-card{
+  flex:1;border-radius:8px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.07);
+  text-decoration:none;
+  transition:border-color 0.2s;
+  background:#0a0d14;
+}
+.discovery-card:hover{border-color:rgba(0,212,255,0.3);}
+.discovery-card-img{
+  width:100%;aspect-ratio:1;overflow:hidden;
+}
+.discovery-card-label{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;
+}
+.discovery-card-title{
+  font-size:9px;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(255,255,255,0.55);
+  font-family:'Geist',sans-serif;
+}
+.discovery-card-arrow{
+  font-size:10px;color:rgba(0,212,255,0.5);
+}
+.discovery-card:hover .discovery-card-title{color:rgba(255,255,255,0.85);}
+.discovery-card:hover .discovery-card-arrow{color:rgba(0,212,255,0.9);}
+
+
   display:flex;align-items:center;gap:8px;
   padding:9px 20px;
   border-top:1px solid rgba(255,255,255,0.06);
@@ -2162,22 +2190,29 @@ window._loaderGlobeReady = function(){
       <span class="cov-leg"><span class="cov-dot" style="background:#cc44ff"></span>Isha</span>
     </div>
     <div style="height:1px;background:var(--border);margin:14px 0;"></div>
-    <div class="cov-note">
-      <div class="cov-note-top">
-        <div class="cov-stat"><div class="cov-stat-num">5</div><div class="cov-stat-lbl">Prayers</div></div>
-        <div class="cov-stat-div"></div>
-        <div class="cov-stat"><div class="cov-stat-num">24</div><div class="cov-stat-lbl">Hours</div></div>
-      </div>
-      <div class="cov-note-text"><span>The Adhan is always calling somewhere on Earth.</span> Every minute of every day.</div>
+
+    <!-- Discovery Cards: Prayer Times + Qibla -->
+    <div class="discovery-cards">
+      <a href="/prayer-times" class="discovery-card">
+        <div class="discovery-card-img">
+          <img src="/assets/prayer-clock-og.png" alt="Prayer Times" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+        </div>
+        <div class="discovery-card-label">
+          <span class="discovery-card-title">Prayer Times</span>
+          <span class="discovery-card-arrow">→</span>
+        </div>
+      </a>
+      <a href="/qibla" class="discovery-card">
+        <div class="discovery-card-img">
+          <img src="/assets/qibla-og.png" alt="Qibla Finder" style="width:100%;height:100%;object-fit:cover;object-position:center;">
+        </div>
+        <div class="discovery-card-label">
+          <span class="discovery-card-title">Qibla Finder</span>
+          <span class="discovery-card-arrow">→</span>
+        </div>
+      </a>
     </div>
   </div>
-
-  <!-- Missing Mosque Strip -->
-  <a href="/contact#mosque-form" class="missing-mosque-strip">
-    <span class="mm-icon">🕌</span>
-    <span class="mm-text">Missing a Mosque? Add it</span>
-    <span class="mm-arrow">→</span>
-  </a>
 </div>
 
 <div id="panel-right">
