@@ -2126,8 +2126,8 @@ window._loaderGlobeReady = function(){
       </div>
       <div class="vp2-card-content">
         <div class="vp2-card-tag">Arc Explorer</div>
-        <h2 class="vp2-card-title">How Prayer Travels the Earth</h2>
-        <p class="vp2-card-desc">Each of the five daily prayers sweeps across the Earth as a unique arc, shaped entirely by the sun's position at that moment. No two prayers draw the same line.</p>
+        <h2 class="vp2-card-title">How Adhan Wave Travels the Earth</h2>
+        <p class="vp2-card-desc">Each of the five daily call to prayers sweeps across the Earth as a unique arc, shaped entirely by the sun's position at that moment. No two Adhan Arc draw the same line.</p>
         <a href="/arcs" class="vp2-card-btn" onclick="exitViewport2()">Explore the Arcs</a>
       </div>
     </div>
@@ -3806,6 +3806,7 @@ document.addEventListener('click', function(e){
 });
 
 function goToCard(idx){
+  var prev = _vp2Card;
   _vp2Card=Math.max(0,Math.min(3,idx));
   var track=document.getElementById('vp2-track');
   track.style.transform='translateX(-'+(_vp2Card*25)+'%)';
@@ -3816,6 +3817,10 @@ function goToCard(idx){
   // Update arrows
   document.getElementById('vp2-prev').classList.toggle('hidden', _vp2Card===0);
   document.getElementById('vp2-next').classList.toggle('hidden', _vp2Card===3);
+  // Restart clock animation if returning to card 0
+  if(_vp2Card===0 && prev!==0 && _vp2Active){
+    drawPTClock();
+  }
 }
 
 function nextCard(){ if(_vp2Card<3) goToCard(_vp2Card+1); }
