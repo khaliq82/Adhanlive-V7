@@ -1442,7 +1442,42 @@ document.getElementById('nowBtn').addEventListener('click', () => {
   updateDateDisplay(dayOfYear);
   updateHourDisplay(utcHour);
   render(dayOfYear, utcHour);
+  // Re-enable live mode
+  startLiveMode();
 });
+
+// ── Live Mode — auto-updates every minute ─────────────────────────────────
+let _liveInterval = null;
+
+function startLiveMode(){
+  if(_liveInterval) clearInterval(_liveInterval);
+  _liveInterval = setInterval(function(){
+    // Only update if not playing animation and not user-scrubbing
+    if(playingDay || playingHour) return;
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    dayOfYear = Math.floor((now - start) / 86400000);
+    utcHour = now.getUTCHours() + now.getUTCMinutes() / 60;
+    daySlider.value = dayOfYear;
+    hourSlider.value = utcHour;
+    updateDateDisplay(dayOfYear);
+    updateHourDisplay(utcHour);
+    render(dayOfYear, utcHour);
+  }, 60000); // update every minute
+}
+
+function stopLiveMode(){
+  if(_liveInterval){ clearInterval(_liveInterval); _liveInterval = null; }
+}
+
+// Stop live mode when user manually moves sliders
+hourSlider.addEventListener('mousedown', stopLiveMode);
+hourSlider.addEventListener('touchstart', stopLiveMode);
+daySlider.addEventListener('mousedown', stopLiveMode);
+daySlider.addEventListener('touchstart', stopLiveMode);
+
+// Start live mode on page load
+startLiveMode();
 
 // ── Prayer toggles ───────────────────────────────────────────────────
 document.getElementById('pToggles').addEventListener('click', e => {
