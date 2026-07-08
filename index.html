@@ -1064,8 +1064,8 @@ body.map-active #map-footer{display:flex;}
 
 /* Mobile */
 @media(max-width:768px){
-  .vp2-card{grid-template-columns:1fr;grid-template-rows:45% 55%;}
-  .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .vp2-card{grid-template-columns:1fr;grid-template-rows:38% 62%;}
+  .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding-top:64px;}
   .vp2-card-content{padding:28px 24px;gap:16px;}
   .vp2-card-title{font-size:clamp(22px,5.5vw,30px);}
   .vp2-card-desc{font-size:0.82rem;}
@@ -4942,7 +4942,9 @@ function drawQiblaCompass(){
 function updateNavVisibility(){
   var nav=document.querySelector('nav');
   if(!nav) return;
-  if(mapMode){
+  var vp2=document.getElementById('viewport-2');
+  var vp2Active=vp2 && vp2.classList.contains('active');
+  if(mapMode || vp2Active){
     nav.classList.remove('nav-hidden');
   } else {
     // Hero is a purely full-screen experience — nav always hidden
