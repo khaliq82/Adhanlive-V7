@@ -602,7 +602,7 @@ h1.hero-city { margin: 0; padding: 0; }
     <!-- Qibla compass — overlays clock-face exactly -->
     <div id="qibla-face" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transition:opacity 0.35s ease;opacity:0;pointer-events:none;background:var(--bg);">
       <canvas id="qiblaCanvas" style="width:min(100%,680px);height:min(100%,680px);aspect-ratio:1;display:block;"></canvas>
-      <button id="compass-btn" onclick="enableCompass()" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:transparent;border:none;color:rgba(255,255,255,0.85);font-size:0.82rem;font-family:Geist,sans-serif;cursor:pointer;display:none;z-index:10;text-align:center;letter-spacing:0.04em;text-shadow:0 0 12px rgba(0,212,255,0.6);">
+      <button id="compass-btn" onclick="enableCompass()" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:12px 24px;border-radius:10px;background:#000;border:1px solid rgba(0,212,255,0.6);color:var(--cyan);font-size:0.72rem;font-family:Geist,sans-serif;font-weight:600;letter-spacing:0.06em;cursor:pointer;display:none;z-index:10;text-align:center;max-width:150px;line-height:1.4;box-shadow:0 0 20px rgba(0,212,255,0.25),inset 0 0 12px rgba(0,212,255,0.05);transition:all 0.2s;">
         Tap to enable live compass
       </button>
       <!-- Desktop overlay -->
