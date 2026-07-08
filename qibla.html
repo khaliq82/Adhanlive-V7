@@ -158,6 +158,10 @@ nav{position:sticky;top:0;z-index:500;height:56px;display:flex;align-items:cente
   .bb-center{display:none;}
   .bb-share-label{display:none;}
 }
+.mobile-copyright{display:none;}
+@media(max-width:900px){
+  .mobile-copyright{display:block;text-align:center;padding:0 16px 10px;font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:0.03em;}
+}
 
 /* ── Mobile ──────────────────────────────────────────────────────────────── */
 @media(max-width:900px){
@@ -363,6 +367,7 @@ nav{position:sticky;top:0;z-index:500;height:56px;display:flex;align-items:cente
 
   </div>
 
+  <div class="mobile-copyright">&copy; 2026 AdhanLive &middot; Mosque data &copy; OpenStreetMap contributors</div>
   <div class="bottom-bar">
     <div class="bb-left">
       <a href="/home" class="bb-logo"><div class="bb-dot"></div><span>Adhan<span style="color:#00d4ff">Live</span></span></a>
