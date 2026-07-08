@@ -209,20 +209,6 @@ nav.nav-hidden{
   z-index:10;
 }
 
-/* Hamburger pulsing ring */
-.hamburger{
-  display:none;
-  flex-direction:column;justify-content:center;gap:5px;
-  width:32px;height:32px;
-  background:none;border:none;cursor:pointer;padding:4px;
-  position:relative;
-}
-.hamburger::after{
-  content:'';position:absolute;inset:-2px;border-radius:6px;
-  border:1px solid rgba(255,255,255,0.25);
-  animation:pulse 3s ease-out infinite;
-  pointer-events:none;
-}
 .nav-utc{
   display:flex;align-items:stretch;
   padding:0;border:1px solid rgba(255,255,255,0.1);border-radius:6px;
@@ -1064,7 +1050,7 @@ body.map-active #map-footer{display:flex;}
 
 /* Mobile */
 @media(max-width:768px){
-  .vp2-card{grid-template-columns:1fr;grid-template-rows:32% 68%;}
+  .vp2-card{grid-template-columns:1fr;grid-template-rows:40% 60%;}
   .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding-top:56px;}
   .vp2-card-content{padding:28px 24px;gap:16px;}
   .vp2-card-title{font-size:clamp(22px,5.5vw,30px);}
@@ -4221,8 +4207,11 @@ function drawVP2Arc(vp2Times, vp2City, vp2LocalH){
   const canvas=document.getElementById('pt-clock-canvas');
   const dpr=Math.min(window.devicePixelRatio||1,2);
   const wrap=canvas.parentElement;
-  // Cap at 580px so clock fits in VP2 panel without overflow
-  const size=Math.min(Math.round(wrap.getBoundingClientRect().width)||wrap.offsetWidth||400, 580);
+  // Cap at 580px so clock fits in VP2 panel without overflow (respects both width and height)
+  const wrapRect=wrap.getBoundingClientRect();
+  const availW=Math.round(wrapRect.width)||wrap.offsetWidth||400;
+  const availH=Math.round(wrapRect.height)||availW;
+  const size=Math.min(availW, availH, 580);
   if(size<10)return;
   if(canvas._lastSize!==size||canvas._lastDpr!==dpr){
     canvas.width=Math.round(size*dpr);canvas.height=Math.round(size*dpr);
