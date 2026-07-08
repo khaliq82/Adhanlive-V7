@@ -1053,6 +1053,7 @@ body.map-active #map-footer{display:flex;}
   .vp2-card{grid-template-columns:1fr;grid-template-rows:52% 48%;}
   .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding-top:56px;}
   #vp2-card-0 .vp2-card-visual{padding-top:84px;}
+  #vp2-card-0{grid-template-rows:60% 40%;}
   .vp2-card-content{padding:28px 24px;gap:16px;}
   .vp2-card-title{font-size:clamp(22px,5.5vw,30px);}
   .vp2-card-desc{font-size:0.82rem;}
@@ -4212,7 +4213,7 @@ function drawVP2Arc(vp2Times, vp2City, vp2LocalH){
   const wrapRect=wrap.getBoundingClientRect();
   const availW=Math.round(wrapRect.width)||wrap.offsetWidth||400;
   const availH=Math.round(wrapRect.height)||availW;
-  const size=Math.round(Math.min(availW, availH, 580)*0.94);
+  const size=Math.round(Math.min(availW, availH, 580)*0.97);
   if(size<10)return;
   if(canvas._lastSize!==size||canvas._lastDpr!==dpr){
     canvas.width=Math.round(size*dpr);canvas.height=Math.round(size*dpr);
