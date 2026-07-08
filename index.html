@@ -1768,19 +1768,6 @@ footer{
   .mobile-feature-pills{
     display:flex;flex-direction:column;gap:10px;padding:16px 16px 0;
   }
-  .mobile-mm-strip{
-    display:none;
-    align-items:center;gap:10px;
-    padding:14px 16px;
-    margin:16px 16px 0;
-    border:1px solid rgba(0,212,255,0.25);
-    border-radius:12px;
-    background:rgba(0,212,255,0.06);
-    color:rgba(255,255,255,0.75);
-    font-size:12px;font-weight:600;letter-spacing:0.04em;
-    text-decoration:none;
-  }
-  body.map-active .mobile-mm-strip{display:flex;}
 }
 
 /* ── LOADING SCREEN ── */
@@ -2428,14 +2415,23 @@ window._loaderGlobeReady = function(){
       </div>
       <div class="mfp-arrow">→</div>
     </a>
+    <a href="/prayer-times" class="mfp-pill">
+      <div class="mfp-icon">🕐</div>
+      <div class="mfp-text">
+        <div class="mfp-name">Prayer Times</div>
+        <div class="mfp-desc">Live prayer times and countdown for your city</div>
+      </div>
+      <div class="mfp-arrow">→</div>
+    </a>
+    <a href="/qibla" class="mfp-pill">
+      <div class="mfp-icon">🧭</div>
+      <div class="mfp-text">
+        <div class="mfp-name">Qibla Finder</div>
+        <div class="mfp-desc">Live compass direction to Makkah</div>
+      </div>
+      <div class="mfp-arrow">→</div>
+    </a>
   </div>
-
-  <!-- Missing Mosque Mobile -->
-  <a href="/contact#mosque-form" id="mobile-missing-mosque" class="mobile-mm-strip">
-    <span>🕌</span>
-    <span>Missing a Mosque? Add it</span>
-    <span style="color:var(--gold)">→</span>
-  </a>
 
   <!-- Mobile Copyright -->
   <div class="mobile-copyright">
