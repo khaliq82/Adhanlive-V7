@@ -237,6 +237,8 @@ nav{
 .mf-share-btn.whatsapp{background:#25D366;color:#fff;}
 .mf-share-btn.twitter{background:#000;color:#fff;border:1px solid rgba(255,255,255,0.15);}
 .mf-share-btn.copy{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12);}
+.bottom-bar{display:none;}
+.mobile-copyright{display:none;}
 
 /* ── MOBILE ── */
 @media(max-width:768px){
@@ -268,19 +270,15 @@ nav{
   .bottom-bar{
     display:flex;align-items:center;justify-content:space-between;
     padding:0 16px;height:48px;flex-shrink:0;
-    background:rgba(6,10,16,0.97);backdrop-filter:blur(12px);
+    background:rgba(6,10,16,0.97);
     border-top:1px solid rgba(255,255,255,0.08);
-    position:fixed;bottom:0;left:0;right:0;z-index:300;
   }
   .bb-left{display:flex;align-items:center;gap:6px;}
   .bb-logo{display:flex;align-items:center;gap:6px;font-family:'Geist',sans-serif;font-weight:800;font-size:13px;letter-spacing:-0.02em;color:#fff;text-decoration:none;}
   .bb-dot{width:7px;height:7px;border-radius:50%;background:#00d4ff;box-shadow:0 0 6px #00d4ff;flex-shrink:0;}
   .bb-right{display:flex;align-items:center;gap:8px;}
-  .mobile-copyright{display:block;font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:0.03em;text-align:center;padding:0 16px 10px;position:fixed;bottom:48px;left:0;right:0;background:rgba(6,10,16,0.97);z-index:300;}
-  main{padding-bottom:90px;}
+  .mobile-copyright{display:block;font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:0.03em;text-align:center;padding:6px 16px;background:rgba(6,10,16,0.97);}
 }
-.bottom-bar{display:none;}
-.mobile-copyright{display:none;}
 .mf-support-link{font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(0,212,255,0.7);text-decoration:none;border:1px solid rgba(0,212,255,0.35);border-radius:20px;padding:4px 10px;transition:all 0.2s;margin-right:8px;}
 .mf-support-link:hover{color:#00d4ff;border-color:rgba(0,212,255,0.8);}
 </style>
