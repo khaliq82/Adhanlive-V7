@@ -152,6 +152,8 @@
   }
   .chip:hover { border-color: var(--cyan); color: var(--text); background: var(--cyan-dim); }
 
+  .suggestions-ticker { display: none; }
+
   /* MESSAGES */
   .messages { display: flex; flex-direction: column; padding: 8px 0 24px; }
 
@@ -352,6 +354,26 @@
     #map-footer{display:none !important;}
     .mobile-copyright{display:block;text-align:center;padding:0 16px 10px;font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:0.03em;}
     .bottom-bar{display:flex !important;}
+    .welcome-screen{min-height:0;}
+    .chat-area{min-height:0;}
+    .suggestions{display:none;}
+    .suggestions-ticker{
+      display:flex;flex-direction:column;gap:8px;
+      width:100%;margin-top:8px;overflow:hidden;
+    }
+    .ticker-row{overflow:hidden;white-space:nowrap;position:relative;width:100%;}
+    .ticker-track{
+      display:inline-flex;gap:8px;padding-left:16px;
+      width:max-content;
+    }
+    .ticker-track[data-dir="left"]{animation:tickerLeft 24s linear infinite;}
+    .ticker-track[data-dir="right"]{animation:tickerRight 24s linear infinite;}
+    .ticker-track.paused{animation-play-state:paused;}
+    @keyframes tickerLeft{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+    @keyframes tickerRight{from{transform:translateX(-50%);}to{transform:translateX(0);}}
+    @media(prefers-reduced-motion:reduce){
+      .ticker-track{animation:none !important;}
+    }
     .pa-bb-tagline{display:none;}
     .pa-bb-center{display:none;}
     .pa-bb-share-label{display:none;}
@@ -417,6 +439,30 @@
         <div class="chip" onclick="ask(this)">How does the live map show prayer times in real time?</div>
         <div class="chip" onclick="ask(this)">Why does Asr time vary between mosques?</div>
         <div class="chip" onclick="ask(this)">What is the Adhan Arc Explorer?</div>
+      </div>
+      <div class="suggestions-ticker" id="suggestionsTicker">
+        <div class="ticker-row">
+          <div class="ticker-track" data-dir="left">
+            <div class="chip" onclick="ask(this)">What am I looking at on the live map?</div>
+            <div class="chip" onclick="ask(this)">What is the Adhan Clock?</div>
+            <div class="chip" onclick="ask(this)">How does the live map show prayer times in real time?</div>
+            <div class="chip" onclick="ask(this)">What is the Adhan Arc Explorer?</div>
+            <div class="chip" onclick="ask(this)">What am I looking at on the live map?</div>
+            <div class="chip" onclick="ask(this)">What is the Adhan Clock?</div>
+            <div class="chip" onclick="ask(this)">How does the live map show prayer times in real time?</div>
+            <div class="chip" onclick="ask(this)">What is the Adhan Arc Explorer?</div>
+          </div>
+        </div>
+        <div class="ticker-row">
+          <div class="ticker-track" data-dir="right">
+            <div class="chip" onclick="ask(this)">What do the dot colors mean?</div>
+            <div class="chip" onclick="ask(this)">Why does the prayer wave move westward?</div>
+            <div class="chip" onclick="ask(this)">Why does Asr time vary between mosques?</div>
+            <div class="chip" onclick="ask(this)">What do the dot colors mean?</div>
+            <div class="chip" onclick="ask(this)">Why does the prayer wave move westward?</div>
+            <div class="chip" onclick="ask(this)">Why does Asr time vary between mosques?</div>
+          </div>
+        </div>
       </div>
       <!-- Input embedded in welcome screen -->
       <div class="welcome-input-wrap">
@@ -602,6 +648,13 @@ function ask(el) {
   onInput(inputEl);
   send();
 }
+
+document.querySelectorAll('.ticker-track').forEach(function(track){
+  track.addEventListener('touchstart', function(){ track.classList.add('paused'); }, {passive:true});
+  track.addEventListener('touchend', function(){ setTimeout(function(){ track.classList.remove('paused'); }, 800); });
+  track.addEventListener('mouseenter', function(){ track.classList.add('paused'); });
+  track.addEventListener('mouseleave', function(){ track.classList.remove('paused'); });
+});
 
 function switchToChatMode() {
   if (chatStarted) return;
