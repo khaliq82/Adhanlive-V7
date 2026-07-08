@@ -1064,8 +1064,8 @@ body.map-active #map-footer{display:flex;}
 
 /* Mobile */
 @media(max-width:768px){
-  .vp2-card{grid-template-columns:1fr;grid-template-rows:38% 62%;}
-  .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding-top:64px;}
+  .vp2-card{grid-template-columns:1fr;grid-template-rows:32% 68%;}
+  .vp2-card-visual{border-right:none;border-bottom:1px solid rgba(255,255,255,0.06);padding-top:56px;}
   .vp2-card-content{padding:28px 24px;gap:16px;}
   .vp2-card-title{font-size:clamp(22px,5.5vw,30px);}
   .vp2-card-desc{font-size:0.82rem;}
@@ -1390,6 +1390,7 @@ footer{
   /* Nav hidden on mobile home (hero fills full screen); shown in live map */
   nav{display:none !important;z-index:601 !important;}
   body.map-active nav{display:flex !important;}
+  body.vp2-mode nav{display:flex !important;}
   #map-footer{z-index:601 !important;}
   /* Mobile content wrapper */
   #mobile-content-wrapper{display:none;}
@@ -3760,6 +3761,7 @@ function enterViewport2(){
   if(_vp2Animating||mapMode) return;
   _vp2Animating=true;
   document.getElementById('viewport-2').classList.add('active');
+  document.body.classList.add('vp2-mode');
   // Hide hero overlay so it doesn't show through on mobile
   document.getElementById('home-overlay').classList.add('hidden');
   // Show nav when on VP2
@@ -3780,6 +3782,7 @@ function exitViewport2(){
   if(_vp2CityInterval){ clearInterval(_vp2CityInterval); _vp2CityInterval=null; }
   _vp2CityIdx=0;
   document.getElementById('viewport-2').classList.remove('active');
+  document.body.classList.remove('vp2-mode');
   // Restore hero overlay
   document.getElementById('home-overlay').classList.remove('hidden');
   // Re-hide nav (hero hides it)
