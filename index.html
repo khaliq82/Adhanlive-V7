@@ -3448,7 +3448,16 @@ function updateMobileStats(calling,pC,activeMosques){
   const mt=document.getElementById('m-today');
   if(mc)mc.textContent=calling.toLocaleString();
   if(mm)mm.textContent=allMosques.length.toLocaleString();
-  if(mt){const ms=getAdhanStats();mt.textContent=ms.completed.toLocaleString();}
+  if(mt){
+    if(_adhanStatsReady){
+      const ms=getAdhanStats();
+      mt.textContent=ms.completed.toLocaleString();
+      mt.style.cssText='';
+    } else {
+      mt.textContent='loading...';
+      mt.style.cssText='font-size:14px;font-style:italic;color:rgba(255,255,255,0.3);';
+    }
+  }
 
   // Prayer bars — use exact globe colors
   const mx=Math.max(...Object.values(pC),1);
@@ -3531,7 +3540,7 @@ function getNextPrayer(times){
 // (declared at top)
 
 
-let _adhanCompleted=0, _adhanRemaining=0, _adhanTotal=0, _adhanLastCalc=0;
+let _adhanCompleted=0, _adhanRemaining=0, _adhanTotal=0, _adhanLastCalc=0, _adhanStatsReady=false;
 
 function calcAdhanStats(){
   if(!allMosques||!allMosques.length)return;
@@ -3561,6 +3570,7 @@ function calcAdhanStats(){
   _adhanRemaining=remaining;
   _adhanTotal=todayTotal+remaining;
   _adhanLastCalc=Date.now();
+  _adhanStatsReady=true;
 }
 
 function getAdhanStats(){
