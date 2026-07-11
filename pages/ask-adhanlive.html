@@ -653,6 +653,7 @@ function ask(el) {
 document.querySelectorAll('.ticker-track').forEach(function(track){
   track.addEventListener('touchstart', function(){ track.classList.add('paused'); }, {passive:true});
   track.addEventListener('touchend', function(){ setTimeout(function(){ track.classList.remove('paused'); }, 800); });
+  track.addEventListener('touchcancel', function(){ track.classList.remove('paused'); });
   track.addEventListener('mouseenter', function(){ track.classList.add('paused'); });
   track.addEventListener('mouseleave', function(){ track.classList.remove('paused'); });
 });
