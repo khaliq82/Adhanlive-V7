@@ -106,6 +106,21 @@
       "source": "/makkah.html",
       "destination": "/prayer-times/makkah",
       "permanent": true
+    },
+    {
+      "source": "/jakarta.html",
+      "destination": "/prayer-times/jakarta",
+      "permanent": true
+    },
+    {
+      "source": "/kuala-lumpur.html",
+      "destination": "/prayer-times/kuala-lumpur",
+      "permanent": true
+    },
+    {
+      "source": "/prayer-arcs.html",
+      "destination": "/arcs",
+      "permanent": true
     }
   ]
 }
