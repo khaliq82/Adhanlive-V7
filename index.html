@@ -1870,16 +1870,19 @@ footer{
 // Evaporates with a blur/fade dust effect.
 window._loaderGlobeReady = function(){
   var o = document.getElementById('globe-loading-overlay');
-  if(!o || o.style.display !== 'flex') return;
-  // Dust evaporation
-  o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
-  o.style.filter = 'blur(12px)';
-  o.style.transform = 'scale(1.12)';
-  o.style.opacity = '0';
-  setTimeout(function(){
-    o.style.display = 'none';
-    o.style.transition = o.style.filter = o.style.transform = o.style.opacity = '';
-  }, 1400);
+  if(o && o.style.display === 'flex'){
+    // Dust evaporation for live map overlay
+    o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
+    o.style.filter = 'blur(12px)';
+    o.style.transform = 'scale(1.12)';
+    o.style.opacity = '0';
+    setTimeout(function(){
+      o.style.display = 'none';
+      o.style.transition = o.style.filter = o.style.transform = o.style.opacity = '';
+    }, 1400);
+  }
+  // Also signal minaret loader to hide (home page)
+  if(window._loaderHide) window._loaderHide();
 };
 </script>
 <script>
@@ -1892,9 +1895,9 @@ window._loaderGlobeReady = function(){
   var ctx=cv.getContext('2d');
   var CX=100,CY=100,R=90;
   var pct=0;
-  var DURATION=2500;
-  var startT=Date.now();
   var done=false;
+  var globeReady=false;
+  var startT=Date.now();
 
   function drawRing(p){
     ctx.clearRect(0,0,200,200);
@@ -1930,6 +1933,11 @@ window._loaderGlobeReady = function(){
     },300);
   }
 
+  // Called by _loaderGlobeReady when earth texture + globe are ready
+  window._loaderHide = function(){
+    globeReady = true;
+  };
+
   // Make loader visible and start animation
   var l=document.getElementById('site-loader');
   if(l) l.classList.add('active');
@@ -1938,13 +1946,23 @@ window._loaderGlobeReady = function(){
   var interval=setInterval(function(){
     if(done){clearInterval(interval);return;}
     var elapsed=Date.now()-startT;
-    pct=Math.min(100,(elapsed/DURATION)*100);
+    // Phase 1: animate to 85% in 2s
+    // Phase 2: slow crawl waiting for globe to signal ready
+    var target;
+    if(elapsed < 2000){
+      target = (elapsed/2000)*85;
+    } else {
+      var t = (elapsed-2000)/10000;
+      target = 85 + 10*(1-Math.exp(-t*2));
+    }
+    if(globeReady) target = 100;
+    pct += (target-pct)*0.08;
     drawRing(pct);
-    if(pct>=100){clearInterval(interval);hide();}
+    if(globeReady && pct>=99){clearInterval(interval);hide();}
   },16);
 
-  // Hard fallback at 4s
-  setTimeout(function(){clearInterval(interval);hide();},4000);
+  // Hard fallback at 6s
+  setTimeout(function(){clearInterval(interval);hide();},6000);
 })();
 </script>
 
@@ -2915,8 +2933,19 @@ function initGlobe(){
     renderer.domElement.style.height = '100vh';
   }
 
-  if(!window._earthTex) window._earthTex=new THREE.TextureLoader().load('earth.jpg');
+  if(!window._earthTex) window._earthTex=new THREE.TextureLoader().load('earth.jpg', function(){
+    // Texture loaded — signal minaret loader on next render frame
+    requestAnimationFrame(function(){
+      if(window._loaderHide) window._loaderHide();
+    });
+  });
   const earthTex=window._earthTex;
+  // If texture was already cached, signal immediately
+  if(earthTex && earthTex.image && earthTex.image.complete){
+    requestAnimationFrame(function(){
+      if(window._loaderHide) window._loaderHide();
+    });
+  }
   const sphereSegs=isMobileDevice?32:64;
   globe=new THREE.Mesh(new THREE.SphereGeometry(R,sphereSegs,sphereSegs),new THREE.MeshPhongMaterial({
     map:earthTex,specular:new THREE.Color(0x111122),shininess:5,color:new THREE.Color(0x888888),
