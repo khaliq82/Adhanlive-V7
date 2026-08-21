@@ -1633,8 +1633,11 @@ function drawArc(){
     const nowD=_frameNow;
     const ph=lh%24;
     const phh=String(Math.floor(ph)).padStart(2,'0');
-    const pmm=String(Math.floor(nowD.getMinutes())).padStart(2,'0');
-    const pss=String(nowD.getSeconds()).padStart(2,'0');
+    // Fix: derive all components from lh via total seconds
+    // Avoids browser-timezone contamination from getMinutes()/getSeconds()
+    const _totalSec=Math.round(lh*3600);
+    const pmm=String(Math.floor((_totalSec%3600)/60)).padStart(2,'0');
+    const pss=String(_totalSec%60).padStart(2,'0');
     const timeStr=phh+':'+pmm+':'+pss;
     const pitCY=pitY+pitH*(_mobR?0.52:0.57);
     const pitCX=pitX+pitW/2;
