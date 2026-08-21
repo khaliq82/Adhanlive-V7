@@ -1592,12 +1592,13 @@ function drawArc(){
     ctx.restore();
 
     // 5. Time text — monospace, cyan glow, set into the pit
-    // 24-hour time HH:MM:SS — use frame snapshot, not a fresh cityNow()
+    // 24-hour time HH:MM:SS — derive all from lh to ensure consistency
+    // Use total seconds to avoid floating-point rounding errors with sub-hour offsets
     const nowD=_frameNow;
-    const ph=lh%24;
-    const phh=String(Math.floor(ph)).padStart(2,'0');
-    const pmm=String(Math.floor(nowD.getMinutes())).padStart(2,'0');
-    const pss=String(nowD.getSeconds()).padStart(2,'0');
+    const totalSec=Math.round(lh*3600);
+    const phh=String(Math.floor(totalSec/3600)%24).padStart(2,'0');
+    const pmm=String(Math.floor((totalSec%3600)/60)).padStart(2,'0');
+    const pss=String(totalSec%60).padStart(2,'0');
     const timeStr=phh+':'+pmm+':'+pss;
     const pitCY=pitY+pitH*(_mobR?0.52:0.57);
     const pitCX=pitX+pitW/2;
