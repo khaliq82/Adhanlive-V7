@@ -28,10 +28,10 @@
   <meta name="apple-mobile-web-app-title" content="AdhanLive">
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>AdhanLive: Live Islamic Prayer Map, Prayer Times and Qibla Finder</title>
+<title>AdhanLive — Live Adhan & Azan Times, Prayer Times & Qibla | 280,621 Mosques</title>
 
 <!-- SEO -->
-<meta name="description" content="A live 3D globe showing the Adhan sweeping across 280,621 mosques in real time. Find accurate prayer times for any city and your Qibla direction from anywhere on Earth.">
+<meta name="description" content="Live Adhan and Azan times for cities worldwide. Fajr, Dhuhr, Asr, Maghrib and Isha calculated in real time. Watch the Islamic call to prayer sweep across 280,621 mosques on a live globe.">
 <meta name="keywords" content="adhan live, islamic call to prayer, live mosque map, prayer times, qibla finder, qibla direction, fajr dhuhr asr maghrib isha, muslim prayer globe, adhan wave earth, prayer times london, prayer times new york, prayer times dubai">
 <meta name="author" content="AdhanLive">
 <meta name="robots" content="index, follow">
@@ -1870,19 +1870,16 @@ footer{
 // Evaporates with a blur/fade dust effect.
 window._loaderGlobeReady = function(){
   var o = document.getElementById('globe-loading-overlay');
-  if(o && o.style.display === 'flex'){
-    // Dust evaporation for live map overlay
-    o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
-    o.style.filter = 'blur(12px)';
-    o.style.transform = 'scale(1.12)';
-    o.style.opacity = '0';
-    setTimeout(function(){
-      o.style.display = 'none';
-      o.style.transition = o.style.filter = o.style.transform = o.style.opacity = '';
-    }, 1400);
-  }
-  // Also signal minaret loader to hide (home page)
-  if(window._loaderHide) window._loaderHide();
+  if(!o || o.style.display !== 'flex') return;
+  // Dust evaporation
+  o.style.transition = 'opacity 1.2s ease, filter 1.4s ease, transform 1.4s ease';
+  o.style.filter = 'blur(12px)';
+  o.style.transform = 'scale(1.12)';
+  o.style.opacity = '0';
+  setTimeout(function(){
+    o.style.display = 'none';
+    o.style.transition = o.style.filter = o.style.transform = o.style.opacity = '';
+  }, 1400);
 };
 </script>
 <script>
@@ -1895,9 +1892,9 @@ window._loaderGlobeReady = function(){
   var ctx=cv.getContext('2d');
   var CX=100,CY=100,R=90;
   var pct=0;
-  var done=false;
-  var globeReady=false;
+  var DURATION=2500;
   var startT=Date.now();
+  var done=false;
 
   function drawRing(p){
     ctx.clearRect(0,0,200,200);
@@ -1933,11 +1930,6 @@ window._loaderGlobeReady = function(){
     },300);
   }
 
-  // Called by _loaderGlobeReady when earth texture + globe are ready
-  window._loaderHide = function(){
-    globeReady = true;
-  };
-
   // Make loader visible and start animation
   var l=document.getElementById('site-loader');
   if(l) l.classList.add('active');
@@ -1946,23 +1938,13 @@ window._loaderGlobeReady = function(){
   var interval=setInterval(function(){
     if(done){clearInterval(interval);return;}
     var elapsed=Date.now()-startT;
-    // Phase 1: animate to 85% in 2s
-    // Phase 2: slow crawl waiting for globe to signal ready
-    var target;
-    if(elapsed < 2000){
-      target = (elapsed/2000)*85;
-    } else {
-      var t = (elapsed-2000)/10000;
-      target = 85 + 10*(1-Math.exp(-t*2));
-    }
-    if(globeReady) target = 100;
-    pct += (target-pct)*0.08;
+    pct=Math.min(100,(elapsed/DURATION)*100);
     drawRing(pct);
-    if(globeReady && pct>=99){clearInterval(interval);hide();}
+    if(pct>=100){clearInterval(interval);hide();}
   },16);
 
-  // Hard fallback at 6s
-  setTimeout(function(){clearInterval(interval);hide();},6000);
+  // Hard fallback at 4s
+  setTimeout(function(){clearInterval(interval);hide();},4000);
 })();
 </script>
 
@@ -2933,19 +2915,8 @@ function initGlobe(){
     renderer.domElement.style.height = '100vh';
   }
 
-  if(!window._earthTex) window._earthTex=new THREE.TextureLoader().load('earth.jpg', function(){
-    // Texture loaded — signal minaret loader on next render frame
-    requestAnimationFrame(function(){
-      if(window._loaderHide) window._loaderHide();
-    });
-  });
+  if(!window._earthTex) window._earthTex=new THREE.TextureLoader().load('earth.jpg');
   const earthTex=window._earthTex;
-  // If texture was already cached, signal immediately
-  if(earthTex && earthTex.image && earthTex.image.complete){
-    requestAnimationFrame(function(){
-      if(window._loaderHide) window._loaderHide();
-    });
-  }
   const sphereSegs=isMobileDevice?32:64;
   globe=new THREE.Mesh(new THREE.SphereGeometry(R,sphereSegs,sphereSegs),new THREE.MeshPhongMaterial({
     map:earthTex,specular:new THREE.Color(0x111122),shininess:5,color:new THREE.Color(0x888888),
