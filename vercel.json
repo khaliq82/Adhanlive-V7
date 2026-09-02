@@ -121,6 +121,16 @@
       "source": "/prayer-arcs.html",
       "destination": "/arcs",
       "permanent": true
+    },
+    {
+      "source": "/adhan-clock.html",
+      "destination": "/adhanclock",
+      "permanent": true
+    },
+    {
+      "source": "/prayer-times/",
+      "destination": "/prayer-times",
+      "permanent": true
     }
   ]
 }
